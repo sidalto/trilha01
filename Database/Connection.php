@@ -11,13 +11,12 @@ class Connection
     private const DB_NAME = "wjcrypto";
     private const USER = "root";
     private const PASSWORD = "triger";
-
     private const OPTIONS = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
     ];
 
-    private static $instance;
+    private static PDO $instance;
 
     final private function __construct()
     {
