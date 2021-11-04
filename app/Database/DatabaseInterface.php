@@ -2,7 +2,10 @@
 
 namespace App\Database;
 
+use PDO;
+use PDOException;
+
 interface DatabaseInterface
 {
-    public function getInstance(): PDO;
+    public static function getInstance(): PDO|PDOException;
 }
