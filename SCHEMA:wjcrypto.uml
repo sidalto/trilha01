@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>05dbdbb0-f130-4673-92c6-4f1766983bd6.SCHEMA:wjcrypto</OriginalElement>
+  <nodes>
+    <node x="4.5" y="363.0">05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.accounts</node>
+    <node x="0.0" y="0.0">05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.clients</node>
+    <node x="45.0" y="601.0">05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.transactions</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.transactions" target="05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.accounts" relationship="REFERENCES">
+      <point x="0.0" y="-94.0" />
+      <point x="0.0" y="94.0" />
+    </edge>
+    <edge source="05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.accounts" target="05dbdbb0-f130-4673-92c6-4f1766983bd6.TABLE:wjcrypto.clients" relationship="REFERENCES">
+      <point x="0.0" y="-94.0" />
+      <point x="0.0" y="156.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.6847960444993819" showDependencies="false" x="148.5" y="394.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

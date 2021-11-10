@@ -1,33 +1,37 @@
 <?php
 
-namespace Trilha01\Database;
+namespace App\Database;
 
 use PDO;
 use PDOException;
+use App\Database\DatabaseInterface;
 
-class Connection
+class MysqlConnection implements DatabaseInterface
 {
-    private const HOST = "localhost";
+    private const HOST = "database";
     private const DB_NAME = "wjcrypto";
     private const USER = "root";
-    private const PASSWORD = "triger";
+    private const PASSWORD = "tiger";
     private const OPTIONS = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
     ];
 
-    private static PDO $instance;
+    private static $instance;
 
-    final private function __construct()
+    private function __constructor()
     {
+
     }
 
-    /** @return PDO|PDOException */
-    final public function getInstance(): PDO
+    /**
+     * @return PDO|PDOException
+     */
+    public static function getInstance(): PDO|PDOException
     {
         try {
             if (empty(self::$instance)) {
-                self::$instance = new PDO(
+                 self::$instance = new PDO(
                     "mysql:host=" . self::HOST . ";dbname=" . self::DB_NAME,
                     self::USER,
                     self::PASSWORD,
