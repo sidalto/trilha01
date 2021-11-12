@@ -18,7 +18,6 @@ class Connection
      * Get Database configuration from configuration file source
      *
      * @return array
-     *
      */
     public static function getDatabaseConfiguration(): array
     {
@@ -50,11 +49,7 @@ class Connection
                             self::$config['options']
                         );
                         break;
-                    default:
-                        throw new PDOException('Unknown Database source');
                 }
-
-                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                 return self::$instance;
             } catch (PDOException $e) {

@@ -2,10 +2,8 @@
 
 namespace App\Repositories\ClientRepository;
 
-use App\Database\Connection;
 use App\Repositories\ClientRepository\ClientRepositoryInterface;
-use App\Models\ClientInterface;
-use App\Models\Company;
+use App\Models\Client\ClientInterface;
 use DateTimeImmutable;
 use PDO;
 
@@ -32,8 +30,8 @@ class CompanyRepository implements ClientRepositoryInterface
 
         $clientsList = [];
 
-        while ($clientData = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $clientsList[] = new Company(
+        while ($clientData = $stmt->fetch()) {
+            $clientsList[] = new $this->client(
                 (int)$clientData['id'],
                 new DateTimeImmutable($clientData['created_at']),
                 $clientData['address'],
@@ -41,8 +39,8 @@ class CompanyRepository implements ClientRepositoryInterface
                 $clientData['company_name'],
                 $clientData['cnpj'],
                 $clientData['state_registration'],
-                new DateTimeImmutable($clientData['foundation_date']),
-                new DateTimeImmutable($clientData['updated_at'])
+                $clientData['foundation_date'] ? new DateTimeImmutable($clientData['foundation_date']) : NULL,
+                $clientData['updated_at'] ? new DateTimeImmutable($clientData['updated_at']) : NULL
             );
         }
 
