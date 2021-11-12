@@ -1,12 +1,12 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Database\Connection;
 use App\Repositories\ClientRepository\CompanyRepository;
 use App\Repositories\ClientRepository\PersonRepository;
-use App\Models\Company;
-use App\Models\Person;
+use App\Models\Client\Company;
+use App\Models\Client\Person;
 
 $connection = Connection::getInstance();
 
@@ -26,9 +26,9 @@ $company = new Company(
 
 $person = new Person(
     11,
-    new DateTimeImmutable('now'),
     'Rua 1',
     '(11)12312-1231',
+    new DateTimeImmutable('now'),
     'Teste',
     '123456',
     '456789',
@@ -41,9 +41,7 @@ $person = new Person(
 $companyRepository = new CompanyRepository($connection, $company);
 $personRepository = new PersonRepository($connection, $person);
 
-//$exec = "INSERT INTO clients (person_name, address, telephone) VALUES ('Sidalto Teste', 'Rua 1', '(11)1111-1111')";
-
 $resultCompany = $companyRepository->getAll();
-//$resultPerson = $personRepository->getAll();
+$resultPerson = $personRepository->getAll();
 
-var_dump($resultCompany);
+var_dump($resultPerson, $resultCompany);

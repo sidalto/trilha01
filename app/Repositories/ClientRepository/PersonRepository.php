@@ -2,10 +2,8 @@
 
 namespace App\Repositories\ClientRepository;
 
-use App\Database\Connection;
 use App\Repositories\ClientRepository\ClientRepositoryInterface;
-use App\Models\ClientInterface;
-use App\Models\Person;
+use App\Models\Client\ClientInterface;
 use DateTimeImmutable;
 use PDO;
 
@@ -26,22 +24,22 @@ class PersonRepository implements ClientRepositoryInterface
      */
     public function getAll(): array
     {
-        $sql = "SELECT * FROM clients";
+        $sql = "SELECT * FROM clients WHERE NOT is_company ";
         $stmt = $this->connection->query($sql);
 
         $clientsList = [];
 
-        while ($clientData = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $clientsList[] = new Person(
+        while ($clientData = $stmt->fetch()) {
+            $clientsList[] = new $this->client(
                 (int)$clientData['id'],
-                new DateTimeImmutable($clientData['created_at']),
                 $clientData['address'],
                 $clientData['telephone'],
+                new DateTimeImmutable($clientData['created_at']),
                 $clientData['person_name'],
                 $clientData['cpf'],
                 $clientData['rg'],
-                new DateTimeImmutable($clientData['birth_date']),
-                new DateTimeImmutable($clientData['updated_at'])
+                $clientData['birth_date'] ? new DateTimeImmutable($clientData['birth_date']) : NULL,
+                $clientData['updated_at'] ? new DateTimeImmutable($clientData['updated_at']) : NULL
             );
         }
 

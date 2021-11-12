@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Client;
 
 interface ClientInterface
 {
@@ -13,4 +13,6 @@ interface ClientInterface
     public function getPassword(): string;
 
     public function isAuthenticate(): bool;
+
+    public function isCompany(): bool;
 }

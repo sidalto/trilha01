@@ -1,39 +1,37 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Client;
 
-use App\Models;
-use App\Models\ClientInterface;
+use App\Models\Client\ClientInterface;
 use DateTimeImmutable;
 
 class Person implements ClientInterface
 {
     private int $id;
-    private ?string $personName;
-    private ?string $cpf;
-    private ?string $rg;
-    private DateTimeImmutable $birthDate;
     private string $address;
     private string $telephone;
     private DateTimeImmutable $created_at;
+    private ?string $personName;
+    private ?string $cpf;
+    private ?string $rg;
+    private ?DateTimeImmutable $birthDate;
     private ?DateTimeImmutable $updated_at;
 
     public function __construct(
         int $id,
-        DateTimeImmutable $created_at,
         string $address,
         string $telephone,
-        string $personName = null,
-        string $cpf = null,
-        string $rg = null,
-        DateTimeImmutable $birthDate = null,
-        DateTimeImmutable $updated_at = null
-    )
-    {
+        DateTimeImmutable $created_at,
+        ?string $personName,
+        ?string $cpf,
+        ?string $rg,
+        ?DateTimeImmutable $birthDate,
+        ?DateTimeImmutable $updated_at
+    ) {
         $this->id = $id;
-        $this->created_at = $created_at;
         $this->address = $address;
         $this->telephone = $telephone;
+        $this->created_at = $created_at;
         $this->personName = $personName;
         $this->cpf = $cpf;
         $this->rg = $rg;
@@ -66,4 +64,8 @@ class Person implements ClientInterface
         return true;
     }
 
+    public function isCompany(): bool
+    {
+        return false;
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Repositories\ClientRepository;
 
-use App\Models\ClientInterface;
+use App\Models\Client\ClientInterface;
 
 interface ClientRepositoryInterface
 {
@@ -13,6 +13,6 @@ interface ClientRepositoryInterface
     public function add(ClientInterface $client): bool;
 
     public function edit(int $id): ClientInterface;
-    
+
     public function remove(int $id): bool;
 }
