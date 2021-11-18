@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Models\Account;
+namespace App\Models\CustomerAccount;
 
-use App\Models\Account\AccountInterface;
+use App\Models\CustomerAccount\CustomerAccountInterface;
 
 use DateTimeImmutable;
 
-class Account implements AccountInterface
+class Account implements CustomerAccountInterface
 {
     private int $id;
     private double $currentBalance;
@@ -52,7 +52,7 @@ class Account implements AccountInterface
         return [];
     }
 
-    public function draft(double $amount): bool
+    public function withdraw(double $amount): bool
     {
         return [];
     }
@@ -62,7 +62,7 @@ class Account implements AccountInterface
         return true;
     }
 
-    public function transfer(int $sourceAccountId, int $destinationAccountId): bool
+    public function transfer(int $sourceAccountId, int $destinationAccountId, double $amount): bool
     {
         return true;
     }
