@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Client;
+namespace App\Models\Customer;
 
-interface ClientInterface
+interface CustomerInterface
 {
     public function getAddress(): string;
 

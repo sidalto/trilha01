@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Account;
+namespace App\Models\CustomerAccount;
 
-interface AccountInterface
+interface CustomerAccountInterface
 {
     public function openAccount(): bool;
 
@@ -12,9 +12,9 @@ interface AccountInterface
 
     public function getAccountReport(): array;
 
-    public function draft(double $amount): bool;
+    public function withdraw(double $amount): bool;
 
     public function deposit(double $amount): bool;
 
-    public function transfer(int $sourceAccountId, int $destinationAccountId): bool;
+    public function transfer(int $sourceAccountId, int $destinationAccountId, double $amount): bool;
 }
