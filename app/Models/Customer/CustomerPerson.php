@@ -3,10 +3,15 @@
 namespace App\Models\Customer;
 
 use App\Models\Customer\CustomerInterface;
+use App\Models\CustomerAccount\CustomerAccountInterface;
 use DateTimeImmutable;
 
 class CustomerPerson implements CustomerInterface
 {
+    /**
+     * @var CustomerAccountInterface[] $accounts
+     */
+    private $customerAccounts = [];
     private string $address;
     private string $telephone;
     private DateTimeImmutable $created_at;
@@ -43,6 +48,11 @@ class CustomerPerson implements CustomerInterface
         $this->rg = $rg;
         $this->birthDate = $birthDate;
         $this->updated_at = $updated_at;
+    }
+
+    public function addAccount(CustomerAccountInterface $customerAccount): void
+    {
+        $this->customerAccounts[] = $customerAccount;
     }
 
     public function getId(): int

@@ -2,13 +2,14 @@
 
 namespace App\Repositories\CustomerRepository;
 
-use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
-use App\Models\Customer\CustomerInterface;
-use App\Repositories\Traits\PrepareDatabaseSql;
-use DateTimeImmutable;
-use Exception;
 use PDO;
+use Exception;
 use PDOStatement;
+use DateTimeImmutable;
+use App\Models\Customer\CustomerInterface;
+use App\Models\CustomerAccount\CustomerAccountInterface;
+use App\Repositories\Traits\PrepareDatabaseSql;
+use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 
 class CustomerPersonRepository implements CustomerRepositoryInterface
 {
@@ -39,19 +40,31 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
             $customersList = [];
 
             while ($customerData = $stmt->fetch()) {
-                $customersList[] = new $this->customer(
-                    $customerData['address'],
-                    $customerData['telephone'],
+                if (!array_key_exists($customerData['id'], $customersList)) {
+                    $customersList[$customerData['id']] = new $this->customer(
+                        $customerData['address'],
+                        $customerData['telephone'],
+                        new DateTimeImmutable($customerData['created_at']),
+                        $customerData['email'],
+                        $customerData['password'],
+                        (int)$customerData['id'],
+                        $customerData['person_name'],
+                        $customerData['cpf'],
+                        $customerData['rg'],
+                        $customerData['birth_date'] ? new DateTimeImmutable($customerData['birth_date']) : NULL,
+                        $customerData['updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL
+                    );
+                }
+
+                $customerAccount = new CustomerAccountInterface(
+                    $customerData['number'],
+                    $customerData['current_balance'],
+                    $customerData['type_account'],
                     new DateTimeImmutable($customerData['created_at']),
-                    $customerData['email'],
-                    $customerData['password'],
-                    (int)$customerData['id'],
-                    $customerData['person_name'],
-                    $customerData['cpf'],
-                    $customerData['rg'],
-                    $customerData['birth_date'] ? new DateTimeImmutable($customerData['birth_date']) : NULL,
-                    $customerData['updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL
+                    $customerData['description'],
                 );
+
+                $customersList[$customerData['id']]->addAccount($customerAccount);
             }
 
             return $customersList;
@@ -60,16 +73,31 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
         }
     }
 
-    /**
-     *
-     * @return array
-     */
     public function getAll(): array
     {
         try {
-            $sql = "SELECT * FROM customers WHERE NOT is_company";
-            $stmt = $this->prepareBind($sql);
-            $stmt->execute();
+            $sql = "SELECT 
+                        customers.id,
+                        customers.person_name,
+                        customers.cpf,
+                        customers.rg,
+                        customers.birth_date,
+                        customers.address,
+                        customers.telephone,
+                        customers.email,
+                        accounts.number,
+                        accounts.current_balance,
+                        accounts.type_account,
+                        accounts.description,
+                        accounts.created_at
+                    FROM customers, accounts
+                    WHERE 
+                        NOT is_company
+                        AND accounts.customer_id = customers.id
+                        AND customers.id = :id";
+
+            $params = ['id' => $this->customer->getId()];
+            $stmt = $this->prepareBind($sql, $params);
 
             return $this->fillCustomer($stmt);
         } catch (Exception $e) {
@@ -128,8 +156,7 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
 
             return $this->customer;
         } catch (Exception $e) {
-            // throw new Exception("Not possible add the customer");
-            throw new Exception($e->getMessage());
+            throw new Exception("Not possible add the customer");
         }
     }
 
