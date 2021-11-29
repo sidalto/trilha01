@@ -29,9 +29,9 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     * Fill the Customer object
      * 
      * @param PDOStatement $stmt
+     * @return array
      */
     public function fillCustomer(PDOStatement $stmt): array
     {
@@ -73,7 +73,11 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
         }
     }
 
-    public function getAll(): array
+    /**
+     * 
+     * @return array
+     */
+    public function findAll(): array
     {
         try {
             $sql = "SELECT 
@@ -107,23 +111,35 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
 
     /**
      *
+     * @param CustomerInterface $customer
      * @return CustomerInterface
      */
-    public function getById(CustomerInterface $customer): CustomerInterface
+    public function findOne(string $number): CustomerInterface
     {
         try {
-            $this->customer = $customer;
-
-            $sql = "SELECT * FROM customers WHERE NOT is_company AND id = :id";
-            $params = ['id' => $this->customer->getId()];
+            $sql = "SELECT * FROM customers WHERE NOT is_company AND number = :number";
+            $params = ['number' => $number];
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
-            $this->customer = $this->fillCustomer($stmt)[0];
 
-            return $this->customer;
+            return array_shift($this->fillCustomer($stmt));
         } catch (Exception $e) {
             throw new Exception("Not possible execute the query");
         }
+    }
+
+    /**
+     * 
+     * @param CustomerInterface $customer
+     * @return bool
+     */
+    public function save(CustomerInterface $customer): bool
+    {
+        if (!$customer->getId()) {
+            return $this->insert($customer);
+        }
+
+        return $this->update($customer);
     }
 
     /**
@@ -131,30 +147,31 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
      * @var CustomerInterface $customer
      * @return bool
      */
-    public function add(CustomerInterface $customer): CustomerInterface
+    public function insert(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
-
             $sql = "INSERT INTO customers (person_name, cpf, rg, birth_date, address, telephone, email, password, is_company) VALUES (:person_name, :cpf, :rg, :birth_date, :address, :telephone, :email, :password, :is_company);";
 
             $params = [
-                'person_name' => $this->customer->getPersonName(),
-                'cpf' => $this->customer->getCpf(),
-                'rg' => $this->customer->getRg(),
-                'birth_date' => $this->customer->getBirthDate()->format('Y-m-d'),
-                'address' => $this->customer->getAddress(),
-                'telephone' => $this->customer->getTelephone(),
-                'email' => $this->customer->getEmail(),
-                'password' => password_hash($this->customer->getPassword(), PASSWORD_DEFAULT),
+                'person_name' => $customer->getPersonName(),
+                'cpf' => $customer->getCpf(),
+                'rg' => $customer->getRg(),
+                'birth_date' => $customer->getBirthDate()->format('Y-m-d'),
+                'address' => $customer->getAddress(),
+                'telephone' => $customer->getTelephone(),
+                'email' => $customer->getEmail(),
+                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
                 'is_company' => 0,
             ];
 
             $stmt = $this->prepareBind($sql, $params);
-            $stmt->execute();
-            $this->customer->setId($this->getInsertId());
+            $result = $stmt->execute();
 
-            return $this->customer;
+            if ($result) {
+                $customer->setId($this->getInsertId());
+            }
+
+            return $result;
         } catch (Exception $e) {
             throw new Exception("Not possible add the customer");
         }
@@ -163,34 +180,30 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     /**
      *
      * @var CustomerInterface $customer
-     * @return CustomerInterface
+     * @return bool
      */
-    public function edit(CustomerInterface $customer): CustomerInterface
+    public function update(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
-
             $sql = "UPDATE customers SET person_name = :person_name, cpf = :cpf, rg = :rg, birth_date = :birth_date, address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id;";
 
             $params = [
-                'person_name' => $this->customer->getPersonName(),
-                'cpf' => $this->customer->getCpf(),
-                'rg' => $this->customer->getRg(),
-                'birth_date' => $this->customer->getBirthDate() ? $this->customer->getBirthDate()->format('Y-m-d') : NULL,
-                'address' => $this->customer->getAddress(),
-                'telephone' => $this->customer->getTelephone(),
-                'email' => $this->customer->getEmail(),
-                'password' => password_hash($this->customer->getPassword(), PASSWORD_DEFAULT),
-                'id' => $this->customer->getId()
+                'person_name' => $customer->getPersonName(),
+                'cpf' => $customer->getCpf(),
+                'rg' => $customer->getRg(),
+                'birth_date' => $customer->getBirthDate() ? $customer->getBirthDate()->format('Y-m-d') : NULL,
+                'address' => $customer->getAddress(),
+                'telephone' => $customer->getTelephone(),
+                'email' => $customer->getEmail(),
+                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
+                'id' => $customer->getId()
             ];
 
             $stmt = $this->prepareBind($sql, $params);
-            $stmt->execute();
 
-            return $this->customer;
+            return $stmt->execute();
         } catch (Exception $e) {
-            // throw new Exception("Not possible update the customer");
-            throw new Exception($e->getMessage());
+            throw new Exception("Not possible update the customer");
         }
     }
 
@@ -202,11 +215,9 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     public function remove(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
-
             $sql = "DELETE FROM customers WHERE id = :id;";
 
-            $params = ['id' => $this->customer->getId()];
+            $params = ['id' => $customer->getId()];
             $stmt = $this->prepareBind($sql, $params);
 
             return $stmt->execute();

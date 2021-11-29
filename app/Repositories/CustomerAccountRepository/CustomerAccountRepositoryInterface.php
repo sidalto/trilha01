@@ -2,17 +2,19 @@
 
 namespace App\Repositories\CustomerAccountRepository;
 
+use DateTimeImmutable;
+use App\Models\Customer\CustomerInterface;
 use App\Models\CustomerAccount\CustomerAccountInterface;
 
 interface CustomerAccountRepositoryInterface
 {
-    public function getAll(): array;
+    public function getCustomer(string $id): CustomerInterface;
 
-    public function getById(): CustomerAccountInterface;
+    public function getByNumber(string $number): CustomerAccountInterface;
 
-    public function add(CustomerAccountInterface $account): bool;
+    public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
 
-    public function edit(int $id): CustomerAccountInterface;
+    public function save(CustomerAccountInterface $account): bool;
 
     public function remove(int $id): bool;
 }

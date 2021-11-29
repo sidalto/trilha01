@@ -2,64 +2,81 @@
 
 namespace App\Controllers;
 
+use DateTimeImmutable;
 use App\Models\Customer\CustomerCompany;
-use App\Repositories\CustomerRepository\CustomerCompanyRepository;
+use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 
 class CustomerCompanyController
 {
-    private CustomerCompanyRepository $customerCompanyRepository;
-    private CustomerCompany $customerCompany;
+    private CustomerRepositoryInterface $companyRepository;
 
-    public function __construct(CustomerCompanyRepository $customerCompanyRepository, CustomerCompany $customerCompany)
+    public function __construct(CustomerRepositoryInterface $companyRepository)
     {
-        $this->customerCompanyRepository = $customerCompanyRepository;
-        $this->customerCompany = $customerCompany;
+        $this->companyRepository = $companyRepository;
     }
 
     public function index()
     {
+        var_dump($this->companyRepository->findAll());
     }
 
-    public function getAll()
+    public function getById(int $id)
     {
-        $customerCompanies = $this->customerCompanyRepository->getAll();
-
-        echo json_encode([$customerCompanies]);
+        var_dump($this->companyRepository->findOne($id));
     }
 
-    // public function create(Request $request)
-    // {
-    //     $company = new Company(
-    //         $request['company_name'],
-    //         $request['cnpj'],
-    //         $request['state_registration'],
-    //         $request['address'],
-    //         $request['telephone'],
-    //         $request['foundation_date']
-    //     );
-
-    //     $this->companyRepository->add($company);
-
-    //     echo json_encode(['message' => 'success']);
-    // }
-
-    public function store($category)
+    public function create(array $data)
     {
+        $company = new CustomerCompany();
+
+        $company->fill(
+            $data['address'],
+            $data['telephone'],
+            $data['email'],
+            $data['password'],
+            $data['company_name'],
+            $data['cnpj'],
+            $data['state_registration'],
+            new DateTimeImmutable($data['foundation_date'])
+        );
+
+        $this->companyRepository->save($company);
     }
 
-    public function show($data)
+    public function update(array $data)
     {
+        $existentCompany = $this->companyRepository->findOne($data['args']);
+
+        if (!$existentCompany) {
+            var_dump("Not possible update");
+            exit;
+        }
+
+        $company = new CustomerCompany();
+        $company->fill(
+            isset($data['telephone']) ? $data['telephone'] : $existentCompany->getTelephone(),
+            isset($data['address']) ? $data['address'] : $existentCompany->getAddress(),
+            isset($data['email']) ? $data['email'] : $existentCompany->getEmail(),
+            isset($data['password']) ? $data['password'] : $existentCompany->getPassword(),
+            isset($data['company_name']) ? $data['company_name'] : $existentCompany->getCompanyName(),
+            isset($data['cnpj']) ? $data['cnpj'] : $existentCompany->getCnpj(),
+            isset($data['state_registration']) ? $data['state_registration'] : $existentCompany->getStateRegistration(),
+            isset($data['foundation_date']) ? new DateTimeImmutable($data['foundation_date']) : $existentCompany->getFoundationDate(),
+            $existentCompany->getId()
+        );
+
+        var_dump($this->companyRepository->save($company));
     }
 
-    public function edit($data)
+    public function delete(int $id)
     {
-    }
+        $existentCompany = $this->companyRepository->findOne($id);
 
-    public function save($data)
-    {
-    }
+        if (!$existentCompany) {
+            var_dump("Not possible delete");
+            exit;
+        }
 
-    public function remove($data)
-    {
+        var_dump($this->companyRepository->remove($existentCompany));
     }
 }

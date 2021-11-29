@@ -2,43 +2,63 @@
 
 namespace App\Models\CustomerAccount;
 
-use App\Models\CustomerAccount\CustomerAccountInterface;
-
 use DateTimeImmutable;
 use Exception;
+use App\Models\CustomerAccount\CustomerAccountInterface;
 
-class Account implements CustomerAccountInterface
+class CustomerAccount implements CustomerAccountInterface
 {
     private int $id;
-    private string $number;
+    private int $number;
     private float $currentBalance;
     private int $typeAccount;
     private DateTimeImmutable $created_at;
-    private ?string $description;
-    private ?DateTimeImmutable $updated_at;
-    private ?DateTimeImmutable $finished_at;
+    private string $description;
+    private DateTimeImmutable $updated_at;
 
-    public function __construct(
-        string $number,
+    public function fill(
+        int $id,
         float $currentBalance,
         int $typeAccount,
         DateTimeImmutable $created_at,
         ?string $description,
         ?DateTimeImmutable $updated_at,
-        ?DateTimeImmutable $finished_at
+        ?int $number
     ) {
-        $this->number = $number;
+        $this->id = $id;
         $this->currentBalance = $currentBalance;
         $this->typeAccount = $typeAccount;
         $this->created_at = $created_at;
         $this->description = $description;
         $this->updated_at = $updated_at;
-        $this->finished_at = $finished_at;
+        $this->verifyNumber($number);
     }
 
-    public function getNumber(): string
+    public function getNumber(): int
     {
         return $this->number;
+    }
+
+    private function setNumber(int $number): void
+    {
+        $this->number = $number;
+    }
+
+    private function generateNumber(): int
+    {
+        $number = new DateTimeImmutable('now');
+        $number = $number->getTimestamp();
+
+        return $number;
+    }
+
+    private function verifyNumber(?int $number): void
+    {
+        if (empty($number)) {
+            $newNumber = $this->generateNumber();
+        }
+
+        $this->setNumber($number);
     }
 
     public function getCurrentBalance(): float
@@ -51,14 +71,7 @@ class Account implements CustomerAccountInterface
         $this->currentBalance = $currentBalance;
     }
 
-    private function generateNumber(): string
-    {
-        $number = new DateTimeImmutable('now');
-
-        return $number->getTimestamp();
-    }
-
-    public function getAccountReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
+    public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
     {
         if ($initialData > $finalData) {
             throw new Exception('Invalid date interval');

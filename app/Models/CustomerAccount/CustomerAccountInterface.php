@@ -10,15 +10,15 @@ interface CustomerAccountInterface
 
     public function setCurrentBalance(float $currentBalance): void;
 
-    public function getNumber(): string;
+    public function getNumber(): int;
 
-    public function getAccountReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
+    public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
 
     public function withdraw(float $amount): bool;
 
     public function deposit(float $amount): bool;
 
-    public function transfer(Account $account, float $amount): bool;
+    public function transfer(CustomerAccountInterface $account, float $amount): bool;
 
-    public function verifyAccount(Account $account): ?CustomerAccountInterface;
+    public function verifyAccount(CustomerAccountInterface $account): ?CustomerAccountInterface;
 }

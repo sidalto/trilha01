@@ -2,9 +2,9 @@
 
 namespace App\Models\Customer;
 
+use DateTimeImmutable;
 use App\Models\Customer\CustomerInterface;
 use App\Models\CustomerAccount\CustomerAccountInterface;
-use DateTimeImmutable;
 
 class CustomerPerson implements CustomerInterface
 {
@@ -17,42 +17,47 @@ class CustomerPerson implements CustomerInterface
     private DateTimeImmutable $created_at;
     private string $email;
     private string $password;
-    private ?int $id;
-    private ?string $personName;
-    private ?string $cpf;
-    private ?string $rg;
+    private int $id;
+    private string $personName;
+    private string $cpf;
+    private string $rg;
     private ?DateTimeImmutable $birthDate;
     private ?DateTimeImmutable $updated_at;
 
-    public function __construct(
+    public function fill(
         string $address,
         string $telephone,
-        DateTimeImmutable $created_at,
         string $email,
         string $password,
-        ?int $id,
         ?string $personName,
         ?string $cpf,
         ?string $rg,
-        ?DateTimeImmutable $birthDate,
-        ?DateTimeImmutable $updated_at
+        DateTimeImmutable $birthDate,
+        int $id = 0,
+        ?DateTimeImmutable $created_at = null,
+        ?DateTimeImmutable $updated_at = null
     ) {
-        $this->id = $id;
         $this->address = $address;
         $this->telephone = $telephone;
-        $this->created_at = $created_at;
         $this->email = $email;
         $this->password = $password;
-        $this->personName = $personName;
-        $this->cpf = $cpf;
+        $this->companyName = $personName;
+        $this->cnpj = $cpf;
         $this->rg = $rg;
-        $this->birthDate = $birthDate;
+        $this->foundationDate = $birthDate;
+        $this->id = $id;
+        $this->created_at = $created_at;
         $this->updated_at = $updated_at;
     }
 
     public function addAccount(CustomerAccountInterface $customerAccount): void
     {
         $this->customerAccounts[] = $customerAccount;
+    }
+
+    public function getAccounts(): array
+    {
+        return $this->customerAccounts;
     }
 
     public function getId(): int

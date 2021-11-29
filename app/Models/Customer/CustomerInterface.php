@@ -8,6 +8,8 @@ interface CustomerInterface
 {
     public function addAccount(CustomerAccountInterface $customerAccountInterface): void;
 
+    public function getAccounts(): array;
+
     public function getAddress(): string;
 
     public function getTelephone(): string;

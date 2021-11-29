@@ -1,9 +1,0 @@
-{
-  "db": "mysql",
-  "host": "database",
-  "dbname": "wjcrypto",
-  "username": "root",
-  "password": "tiger",
-  "port": 3306,
-  "options": [{ "PDO::ATTR_DEFAULT_FETCH_MODE": "PDO::FETCH_ASSOC" }]
-}
