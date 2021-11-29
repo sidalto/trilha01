@@ -2,35 +2,39 @@
 
 namespace App\Repositories\CustomerRepository;
 
-use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
-use App\Models\Customer\CustomerInterface;
-use App\Repositories\Traits\PrepareDatabaseSql;
-use DateTimeImmutable;
-use Exception;
 use PDO;
+use Exception;
 use PDOStatement;
+use DateTimeImmutable;
+use App\Models\Customer\CustomerInterface;
+use App\Models\Customer\CustomerCompany;
+use App\Models\CustomerAccount\CustomerAccount;
+use App\Models\CustomerAccount\CustomerAccountInterface;
+use App\Repositories\Traits\PrepareDatabaseSql;
+use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 
 class CustomerCompanyRepository implements CustomerRepositoryInterface
 {
     use PrepareDatabaseSql;
 
     private CustomerInterface $customer;
+    private CustomerAccountInterface $account;
 
     /**
-     * 
+     *
      * @param PDO $connection
      * @param CustomerInterface $customer
      */
-    public function __construct(PDO $connection, CustomerInterface $customer)
+    public function __construct(PDO $connection)
     {
         self::$connection = $connection;
-        $this->customer = $customer;
     }
 
     /**
      * Fill the CustomerInterface object
-     * 
+     *
      * @param PDOStatement $stmt
+     * @return array
      */
     public function fillCustomer(PDOStatement $stmt): array
     {
@@ -39,24 +43,42 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
             $customersList = [];
 
             while ($customerData = $stmt->fetch()) {
-                $customersList[] = new $this->customer(
-                    $customerData['address'],
-                    $customerData['telephone'],
-                    new DateTimeImmutable($customerData['created_at']),
-                    $customerData['email'],
-                    $customerData['password'],
-                    (int)$customerData['id'],
-                    $customerData['company_name'],
-                    $customerData['cnpj'],
-                    $customerData['state_registration'],
-                    $customerData['foundation_date'] ? new DateTimeImmutable($customerData['foundation_date']) : NULL,
-                    $customerData['updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL
+                if (!array_key_exists($customerData['id'], $customersList)) {
+                    $customer = new CustomerCompany();
+                    $customer->fill(
+                        $customerData['address'],
+                        $customerData['telephone'],
+                        $customerData['email'],
+                        $customerData['password'],
+                        $customerData['company_name'],
+                        $customerData['cnpj'],
+                        $customerData['state_registration'],
+                        $customerData['foundation_date'] ? new DateTimeImmutable($customerData['foundation_date']) : NULL,
+                        $customerData['id'],
+                        $customerData['created_at'] ? new DateTimeImmutable($customerData['created_at']) : NULL,
+                        $customerData['updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL
+                    );
+                }
+
+                $account = new CustomerAccount();
+                $account->fill(
+                    $customerData['ac_id'],
+                    $customerData['current_balance'],
+                    $customerData['type'],
+                    new DateTimeImmutable($customerData['ac_created_at']),
+                    $customerData['description'],
+                    $customerData['ac_updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL,
+                    $customerData['number']
                 );
+
+                $customersList[$customer->getId()] = $customer;
+                $customersList[$customer->getId()]->addAccount($account);
             }
 
             return $customersList;
         } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
+            // throw new Exception("Not possible execute the query");
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -64,35 +86,41 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
      *
      * @return array
      */
-    public function getAll(): array
+    public function findAll(): array
     {
         try {
-            $sql = "SELECT * FROM customers WHERE is_company";
+            $sql = "SELECT c.id, c.company_name, c.cnpj, c.state_registration, c.foundation_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) AND c.is_company";
+
             $stmt = $this->prepareBind($sql);
-            $stmt->execute();
 
             return $this->fillCustomer($stmt);
         } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
+            // throw new Exception("Not possible execute the query");
+            throw new Exception($e->getMessage());
         }
     }
 
     /**
      *
+     * @param CustomerInterface $customer
      * @return CustomerInterface
      */
-    public function getById(CustomerInterface $customer): CustomerInterface
+    public function findOne(string $id): ?CustomerInterface
     {
         try {
-            $this->customer = $customer;
+            $sql = "SELECT c.id, c.company_name, c.cnpj, c.state_registration, c.foundation_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.id = :id";
 
-            $sql = "SELECT * FROM customers WHERE is_company AND id = :id";
-            $params = ['id' => $this->customer->getId()];
+            $params = ['id' => $id];
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
-            $this->customer = $this->fillCustomer($stmt)[0];
 
-            return $this->customer;
+            if (!count($this->fillCustomer($stmt)) > 0) {
+                return null;
+            }
+
+            $customer = $this->fillCustomer($stmt);
+
+            return array_shift($customer);
         } catch (Exception $e) {
             throw new Exception("Not possible execute the query");
         }
@@ -103,64 +131,79 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
      * @param CustomerInterface $customer
      * @return bool
      */
-    public function add(CustomerInterface $customer): CustomerInterface
+    public function save(CustomerInterface $customer): bool
+    {
+        if ($customer->getId()) {
+            return $this->update($customer);
+        }
+
+        return $this->insert($customer);
+    }
+
+    /**
+     *            
+     * @param CustomerInterface $customer
+     * @return bool
+     */
+    private function insert(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
-
             $sql = "INSERT INTO customers (company_name, cnpj, state_registration, foundation_date, address, telephone, email, password, is_company) VALUES (:company_name, :cnpj, :state_registration, :foundation_date, :address, :telephone, :email, :password, :is_company);";
 
             $params = [
-                'company_name' => $this->customer->getCompanyName(),
-                'cnpj' => $this->customer->getCnpj(),
-                'state_registration' => $this->customer->getStateRegistration(),
-                'foundation_date' => $this->customer->getFoundationDate()->format('Y-m-d'),
-                'address' => $this->customer->getAddress(),
-                'telephone' => $this->customer->getTelephone(),
-                'email' => $this->customer->getEmail(),
-                'password' => password_hash($this->customer->getPassword(), PASSWORD_DEFAULT),
+                'company_name' => $customer->getCompanyName(),
+                'cnpj' => $customer->getCnpj(),
+                'state_registration' => $customer->getStateRegistration(),
+                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
+                'address' => $customer->getAddress(),
+                'telephone' => $customer->getTelephone(),
+                'email' => $customer->getEmail(),
+                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
                 'is_company' => 1,
             ];
 
             $stmt = $this->prepareBind($sql, $params);
-            $stmt->execute();
-            $this->customer->setId($this->getInsertId());
+            $result = $stmt->execute();
 
-            return $this->customer;
+            if ($result) {
+                $customer->setId($this->getInsertId());
+            }
+
+            return $result;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            // throw new Exception($e->getMessage());
+            throw new Exception("Not possible save the customer");
         }
     }
 
     /**
      *
-     * @param int $id
-     * @return CustomerInterface
+     * @param CustomerInterface $customer
+     * @return bool
      */
-    public function edit(CustomerInterface $customer): CustomerInterface
+    private function update(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
 
-            $sql = "UPDATE customers SET company_name = :company_name, cnpj = :cnpj, state_registration = :state_registration, foundation_date = :foundation_date,  address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id;";
+            $sql = "UPDATE customers SET company_name = :company_name, cnpj = :cnpj, state_registration = :state_registration, foundation_date = :foundation_date,  address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id";
 
             $params = [
-                'company_name' => $this->customer->getCompanyName(),
-                'cnpj' => $this->customer->getCnpj(),
-                'state_registration' => $this->customer->getStateRegistration(),
-                'foundation_date' => $this->customer->getFoundationDate() ? $this->customer->getFoundationDate()->format('Y-m-d') : NULL,
-                'address' => $this->customer->getAddress(),
-                'telephone' => $this->customer->getTelephone(),
-                'email' => $this->customer->getEmail(),
-                'password' => password_hash($this->customer->getPassword(), PASSWORD_DEFAULT),
-                'id' => $this->customer->getId()
+                'company_name' => $customer->getCompanyName(),
+                'cnpj' => $customer->getCnpj(),
+                'state_registration' => $customer->getStateRegistration(),
+                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
+                'address' => $customer->getAddress(),
+                'telephone' => $customer->getTelephone(),
+                'email' => $customer->getEmail(),
+                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
+                'id' => $customer->getId()
             ];
 
             $stmt = $this->prepareBind($sql, $params);
-            $stmt->execute();
 
-            return $this->customer;
+            return $stmt->execute();
         } catch (Exception $e) {
+            throw new Exception($e->getMessage());
             throw new Exception("Not possible update the customer");
         }
     }
@@ -173,11 +216,9 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     public function remove(CustomerInterface $customer): bool
     {
         try {
-            $this->customer = $customer;
+            $sql = "DELETE FROM customers WHERE id = :id";
 
-            $sql = "DELETE FROM customers WHERE id = :id;";
-
-            $params = ['id' => $this->customer->getId()];
+            $params = ['id' => $customer->getId()];
             $stmt = $this->prepareBind($sql, $params);
 
             return $stmt->execute();

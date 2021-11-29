@@ -2,19 +2,23 @@
 
 namespace App\Models\CustomerAccount;
 
+use DateTimeImmutable;
+
 interface CustomerAccountInterface
 {
-    public function openAccount(): bool;
+    public function getCurrentBalance(): float;
 
-    public function finishAccount(): bool;
+    public function setCurrentBalance(float $currentBalance): void;
 
-    public function getCurrentBalance(): double;
+    public function getNumber(): int;
 
-    public function getAccountReport(): array;
+    public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
 
-    public function withdraw(double $amount): bool;
+    public function withdraw(float $amount): bool;
 
-    public function deposit(double $amount): bool;
+    public function deposit(float $amount): bool;
 
-    public function transfer(int $sourceAccountId, int $destinationAccountId, double $amount): bool;
+    public function transfer(CustomerAccountInterface $account, float $amount): bool;
+
+    public function verifyAccount(CustomerAccountInterface $account): ?CustomerAccountInterface;
 }
