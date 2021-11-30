@@ -2,17 +2,24 @@
 
 namespace App\Controllers;
 
+use App\Database\Connection;
 use DateTimeImmutable;
 use App\Models\Customer\CustomerCompany;
+use App\Repositories\CustomerRepository\CustomerCompanyRepository;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 
-class CustomerCompanyController
+class CompanyController
 {
     private CustomerRepositoryInterface $companyRepository;
 
-    public function __construct(CustomerRepositoryInterface $companyRepository)
+    // public function __construct(CustomerRepositoryInterface $companyRepository)
+    // {
+    //     $this->companyRepository = $companyRepository;
+    // }
+
+    public function __construct()
     {
-        $this->companyRepository = $companyRepository;
+        $this->companyRepository = new CustomerCompanyRepository(Connection::getInstance());
     }
 
     public function index()
@@ -20,8 +27,9 @@ class CustomerCompanyController
         var_dump($this->companyRepository->findAll());
     }
 
-    public function getById(int $id)
+    public function getById(array $data)
     {
+        $id = $data['params'];
         var_dump($this->companyRepository->findOne($id));
     }
 
@@ -45,7 +53,10 @@ class CustomerCompanyController
 
     public function update(array $data)
     {
-        $existentCompany = $this->companyRepository->findOne($data['args']);
+        $id = $data['id'];
+        $data = $data['data'];
+
+        $existentCompany = $this->companyRepository->findOne($id);
 
         if (!$existentCompany) {
             var_dump("Not possible update");
@@ -68,8 +79,9 @@ class CustomerCompanyController
         var_dump($this->companyRepository->save($company));
     }
 
-    public function delete(int $id)
+    public function delete(array $data)
     {
+        $id = $data['params'];
         $existentCompany = $this->companyRepository->findOne($id);
 
         if (!$existentCompany) {

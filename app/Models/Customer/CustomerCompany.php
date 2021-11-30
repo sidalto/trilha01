@@ -65,6 +65,11 @@ class CustomerCompany implements CustomerInterface
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getCompanyName(): string
     {
         return $this->companyName;

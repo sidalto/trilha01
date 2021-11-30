@@ -3,132 +3,106 @@
 namespace App\Routes;
 
 use App\Http\Request;
-use Closure;
+use Exception;
 
 class Router
 {
-    private static array $routeList;
+    private Request $request;
+    private static $routeList = [
+        'GET' => [
+            '/customer',
+            '/company',
+            '/account'
+        ],
+        'POST' => [
+            '/customer',
+            '/company',
+            '/account'
+        ],
+        'PUT' => [
+            '/customer',
+            '/company',
+            '/account'
+        ],
+        'DELETE' => [
+            '/customer',
+            '/company',
+            '/account'
+        ],
+    ];
 
-    public function get(string $route, $handle): void
+    public function __construct(Request $request)
     {
-        if ($_SERVER['REQUEST_METHOD'] == "GET") {
-            $uri = (empty($_GET) ? "/" : $_GET["url"]);
-            $params = '';
-
-            if ($uri != "/") {
-                $uri = explode("/", $uri);
-                if (count($uri) > 1) {
-                    $params = end($uri);
-                }
-                $uri = "/" . array_shift($uri);
-            }
-
-            $controller = (!is_string($handle) ? $handle : strstr($handle, "@", true));
-            $method = (!is_string($handle)) ?: str_replace("@", "", strstr($handle, "@", false));
-            self::$routeList = [
-                $route => [
-                    "route" => $route,
-                    "controller" => $controller,
-                    "method" => $method,
-                    "params" => $params
-                ]
-            ];
-
-            self::dispatch($uri);
-        }
+        $this->request = $request;
     }
 
-    public function post(string $route, $handle): void
+    public function handle(): ?array
     {
-        if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            $params = $_POST;
-            $uri = $route;
+        $params = '';
+        $route = explode("/", $this->request->getQueryParams()['url']);
 
-            $controller = (!is_string($handle) ? $handle : strstr($handle, "@", true));
-            $method = (!is_string($handle)) ?: str_replace("@", "", strstr($handle, "@", false));
-
-            self::$routeList = [
-                $route => [
-                    "route" => $route,
-                    "controller" => $controller,
-                    "method" => $method,
-                    "params" => $params
-                ]
-            ];
-
-            self::dispatch($uri);
+        if (count($route) > 1) {
+            $params = $route[1];
         }
+
+        $action = $this->namespace() . ucfirst($route[0]) . "Controller";
+        $route = "/" . $route[0];
+        $httpMethod = $this->request->getHttpMethod();
+        $pos = array_search($route, self::$routeList[$httpMethod]);
+
+        if ($pos === false) {
+            return null;
+        }
+
+        $route = self::$routeList[$httpMethod][$pos];
+
+        return [
+            'route' => $route,
+            'action' => $action,
+            'params' => $params
+        ];
     }
 
-    public function put(string $route, $handle): void
+    public function execute(string $controller, string $method, array $params)
     {
-        if ($_SERVER['REQUEST_METHOD'] == "PUT") {
-            parse_str(file_get_contents('php://input'), $data);
-            $uri = $_SERVER['REQUEST_URI'];
-            $uri = explode("/", $uri);
-            $uri = end($uri);
-            $data['args'] = $uri;
-
-            $controller = (!is_string($handle) ? $handle : strstr($handle, "@", true));
-            $method = (!is_string($handle)) ?: str_replace("@", "", strstr($handle, "@", false));
-
-            self::$routeList = [
-                $route => [
-                    "route" => $route,
-                    "controller" => $controller,
-                    "method" => $method,
-                    "params" => $data
-                ]
-            ];
-
-            self::dispatch($route);
-        }
-    }
-
-    public function delete(string $route, $handle): void
-    {
-        if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
-            $uri = $_SERVER['REQUEST_URI'];
-            $uri = explode("/", $uri);
-            $uri = end($uri);
-
-            $controller = (!is_string($handle) ? $handle : strstr($handle, "@", true));
-            $method = (!is_string($handle)) ?: str_replace("@", "", strstr($handle, "@", false));
-            self::$routeList = [
-                $route => [
-                    "route" => $route,
-                    "controller" => $controller,
-                    "method" => $method,
-                    "params" => $uri
-                ]
-            ];
-
-            self::dispatch($route);
-        }
-    }
-
-    public static function dispatch(string $route)
-    {
-        $route = (array_key_exists($route, self::$routeList) ? self::$routeList[$route] : '');
-
-        if (!empty($route)) {
-            $params = ($route['params']) ?? [];
-
-            if ($route['controller'] instanceof \Closure) {
-                call_user_func($route['controller'], $params);
+        if (class_exists($controller)) {
+            $newController = new $controller;
+            if (method_exists($newController, $method)) {
+                call_user_func(array($newController, $method), $params);
                 return;
             }
+        }
+    }
 
-            $controller = (!empty($route['controller']) ? self::namespace() . $route['controller'] : '');
-            $method = ($route['method']) ?? '';
+    public function dispatch()
+    {
+        $route = $this->handle();
 
-            if (class_exists($controller)) {
-                $newController = new $controller;
-                if (method_exists($controller, $method)) {
-                    call_user_func(array($newController, $method), $params);
-                    return;
-                }
-            }
+        if (!$route) {
+            return null;
+        }
+
+        $controller = $route['action'];
+
+        switch ($this->request->getHttpMethod()) {
+            case 'GET':
+                $method = empty($route['params']) ? 'index' : 'getById';
+                $this->execute($controller, $method, $route);
+                break;
+            case 'POST':
+                $this->execute($controller, 'create', $this->request->getPostData());
+                break;
+            case 'PUT':
+                $params['id'] = $route['params'];
+                parse_str(file_get_contents("php://input"), $params['data']);
+                $this->execute($controller, 'update', $params);
+                break;
+            case 'DELETE':
+                $this->execute($controller, 'delete', $route);
+                break;
+            default:
+                throw new Exception('Invalid HTTP Method');
+                break;
         }
     }
 

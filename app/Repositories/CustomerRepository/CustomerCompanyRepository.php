@@ -133,11 +133,11 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
      */
     public function save(CustomerInterface $customer): bool
     {
-        if ($customer->getId()) {
-            return $this->update($customer);
+        if (!$customer->getId()) {
+            return $this->insert($customer);
         }
 
-        return $this->insert($customer);
+        return $this->update($customer);
     }
 
     /**
@@ -171,7 +171,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
             return $result;
         } catch (Exception $e) {
-            // throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage());
             throw new Exception("Not possible save the customer");
         }
     }
