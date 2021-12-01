@@ -8,7 +8,7 @@ interface CustomerRepositoryInterface
 {
     public function findAll(): array;
 
-    public function findOne(string $number): ?CustomerInterface;
+    public function findOne(int $id): ?CustomerInterface;
 
     public function save(CustomerInterface $customer): bool;
 

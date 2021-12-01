@@ -12,18 +12,18 @@ class CustomerAccount implements CustomerAccountInterface
     private int $number;
     private float $currentBalance;
     private int $typeAccount;
-    private DateTimeImmutable $created_at;
     private string $description;
-    private DateTimeImmutable $updated_at;
+    private ?DateTimeImmutable $created_at;
+    private ?DateTimeImmutable $updated_at;
 
     public function fill(
-        int $id,
         float $currentBalance,
         int $typeAccount,
-        DateTimeImmutable $created_at,
         ?string $description,
-        ?DateTimeImmutable $updated_at,
-        ?int $number
+        ?int $number,
+        int $id = 0,
+        ?DateTimeImmutable $created_at = null,
+        ?DateTimeImmutable $updated_at = null
     ) {
         $this->id = $id;
         $this->currentBalance = $currentBalance;
@@ -32,6 +32,11 @@ class CustomerAccount implements CustomerAccountInterface
         $this->description = $description;
         $this->updated_at = $updated_at;
         $this->verifyNumber($number);
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     public function getNumber(): int
@@ -64,6 +69,16 @@ class CustomerAccount implements CustomerAccountInterface
     public function getCurrentBalance(): float
     {
         return $this->currentBalance;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function getType(): float
+    {
+        return $this->type;
     }
 
     public function setCurrentBalance(float $currentBalance): void

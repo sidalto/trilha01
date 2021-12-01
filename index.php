@@ -1,16 +1,31 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . "/vendor/autoload.php";
 
-use App\Http\Request;
 use App\Routes\Router;
-use App\Routes\Routes;
 
-$request = new Request();
-$router = new Router($request);
-$routes = new Routes($request, $router);
+Router::setDefaultNamespace("\App\Controllers");
+Router::start();
 
-$routes->run();
+
+
+
+
+
+
+
+
+// require_once __DIR__ . '/vendor/autoload.php';
+
+// use App\Http\Request;
+// use App\Routes\Router;
+// use App\Routes\Routes;
+
+// $request = new Request();
+// $router = new Router($request);
+// $routes = new Routes($request, $router);
+
+// $routes->run();
 
 // use App\Http\Request;
 // use App\Routes\Router;

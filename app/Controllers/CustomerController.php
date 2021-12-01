@@ -2,13 +2,13 @@
 
 namespace App\Controllers;
 
-use App\Http\Request;
 use DateTimeImmutable;
 use App\Database\Connection;
 use App\Models\Customer\CustomerPerson;
-use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerRepository\CustomerPersonRepository;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
+
+use function App\Helpers\input;
 
 class CustomerController
 {
@@ -17,7 +17,6 @@ class CustomerController
     public function __construct()
     {
         $this->customerRepository = new CustomerPersonRepository(Connection::getInstance());
-        $this->request = new Request();
     }
 
     public function index()
@@ -25,35 +24,31 @@ class CustomerController
         var_dump($this->customerRepository->findAll());
     }
 
-    public function getById(array $data)
+    public function getById(int $id)
     {
-        $id = $data['params'];
         var_dump($this->customerRepository->findOne($id));
     }
 
-    public function create(array $data)
+    public function create()
     {
         $customer = new CustomerPerson();
 
         $customer->fill(
-            $data['address'],
-            $data['telephone'],
-            $data['email'],
-            $data['password'],
-            $data['person_name'],
-            $data['cpf'],
-            $data['rg'],
-            new DateTimeImmutable($data['birth_date'])
+            input('address'),
+            input('telephone'),
+            input('email'),
+            input('password'),
+            input('person_name'),
+            input('cpf'),
+            input('rg'),
+            new DateTimeImmutable(input('birth_date'))
         );
 
         $this->customerRepository->save($customer);
     }
 
-    public function update(array $data)
+    public function update(int $id)
     {
-        $id = $data['id'];
-        $data = $data['data'];
-
         $existentCustomer = $this->customerRepository->findOne($id);
 
         if (!$existentCustomer) {
@@ -63,23 +58,22 @@ class CustomerController
 
         $customer = new CustomerPerson();
         $customer->fill(
-            isset($data['telephone']) ? $data['telephone'] : $existentCustomer->getTelephone(),
-            isset($data['address']) ? $data['address'] : $existentCustomer->getAddress(),
-            isset($data['email']) ? $data['email'] : $existentCustomer->getEmail(),
-            isset($data['password']) ? $data['password'] : $existentCustomer->getPassword(),
-            isset($data['person_name']) ? $data['person_name'] : $existentCustomer->getPersonName(),
-            isset($data['cpf']) ? $data['cpf'] : $existentCustomer->getCpf(),
-            isset($data['rg']) ? $data['rg'] : $existentCustomer->getRg(),
-            isset($data['birth_date']) ? new DateTimeImmutable($data['birth_date']) : $existentCustomer->getBirthDate(),
+            !empty(input('telephone')) ? input('telephone') : $existentCustomer->getTelephone(),
+            !empty(input('address')) ? input('address') : $existentCustomer->getAddress(),
+            !empty(input('email')) ? input('email') : $existentCustomer->getEmail(),
+            !empty(input('password')) ? input('password') : $existentCustomer->getPassword(),
+            !empty(input('person_name')) ? input('person_name') : $existentCustomer->getPersonName(),
+            !empty(input('cpf')) ? input('cpf') : $existentCustomer->getCpf(),
+            !empty(input('rg')) ? input('rg') : $existentCustomer->getRg(),
+            !empty(input('birth_date')) ? new DateTimeImmutable(input('birth_date')) : $existentCustomer->getBirthDate(),
             $existentCustomer->getId()
         );
 
         var_dump($this->customerRepository->save($customer));
     }
 
-    public function delete(array $data)
+    public function delete(int $id)
     {
-        $id = $data['params'];
         $existentCustomer = $this->customerRepository->findOne($id);
 
         if (!$existentCustomer) {

@@ -62,13 +62,13 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
                 $account = new CustomerAccount();
                 $account->fill(
-                    $customerData['ac_id'],
                     $customerData['current_balance'],
                     $customerData['type'],
-                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['description'],
+                    $customerData['number'],
+                    $customerData['ac_id'],
+                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['ac_updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL,
-                    $customerData['number']
                 );
 
                 $customersList[$customer->getId()] = $customer;
@@ -105,7 +105,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
      * @param CustomerInterface $customer
      * @return CustomerInterface
      */
-    public function findOne(string $id): ?CustomerInterface
+    public function findOne(int $id): ?CustomerInterface
     {
         try {
             $sql = "SELECT c.id, c.company_name, c.cnpj, c.state_registration, c.foundation_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.id = :id";
@@ -136,7 +136,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
         if (!$customer->getId()) {
             return $this->insert($customer);
         }
-
+        // var_dump($customer);
         return $this->update($customer);
     }
 

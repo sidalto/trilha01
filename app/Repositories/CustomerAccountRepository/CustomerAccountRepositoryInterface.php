@@ -8,13 +8,13 @@ use App\Models\CustomerAccount\CustomerAccountInterface;
 
 interface CustomerAccountRepositoryInterface
 {
-    public function getCustomer(string $id): CustomerInterface;
+    public function findAllByCustomer(int $idCustomer): array;
 
-    public function getByNumber(string $number): CustomerAccountInterface;
+    public function findOneByCustomer(int $idCustomer, int $idAccount): ?CustomerAccountInterface;
 
-    public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
+    // public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
 
-    public function save(CustomerAccountInterface $account): bool;
+    public function save(CustomerAccountInterface $account, int $idCustomer): bool;
 
-    public function remove(int $id): bool;
+    public function remove(CustomerAccountInterface $account): bool;
 }

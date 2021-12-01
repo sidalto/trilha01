@@ -61,13 +61,13 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
 
                 $account = new CustomerAccount();
                 $account->fill(
-                    $customerData['ac_id'],
                     $customerData['current_balance'],
                     $customerData['type'],
-                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['description'],
+                    $customerData['number'],
+                    $customerData['ac_id'],
+                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['ac_updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL,
-                    $customerData['number']
                 );
 
 
@@ -104,7 +104,7 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
      * @param CustomerInterface $customer
      * @return CustomerInterface
      */
-    public function findOne(string $id): CustomerInterface
+    public function findOne(int $id): ?CustomerInterface
     {
         try {
             $sql = "SELECT c.id, c.person_name, c.cpf, c.rg, c.birth_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE NOT c.is_company AND ca.customers_id = c.id AND c.id = :id";
