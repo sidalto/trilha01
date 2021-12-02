@@ -2,20 +2,16 @@
 
 namespace App\Controllers;
 
-use DateTimeImmutable;
 use App\Database\Connection;
 use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepositoryInterface;
 
+use function App\Helpers\input;
+
 class AccountController
 {
     private CustomerAccountRepositoryInterface $accountRepository;
-
-    // public function __construct(CustomerRepositoryInterface $companyRepository)
-    // {
-    //     $this->companyRepository = $companyRepository;
-    // }
 
     public function __construct()
     {
@@ -32,62 +28,49 @@ class AccountController
         var_dump($this->accountRepository->findOneByCustomer($idAccount, $idCustomer));
     }
 
-    public function create(array $data)
+    public function create()
     {
         $account = new CustomerAccount();
 
         $account->fill(
-            $data['address'],
-            $data['telephone'],
-            $data['email'],
-            $data['password'],
-            $data['company_name'],
-            $data['cnpj'],
-            $data['state_registration'],
-            new DateTimeImmutable($data['foundation_date'])
+            input('current_balance'),
+            input('type'),
+            input('description'),
+            $account->getNumber()
         );
 
-        $this->accountRepository->save($account);
+        $this->accountRepository->save($account, input('idCustomer'));
     }
 
-    public function update(array $data)
+    public function update(int $idAccount)
     {
-        $id = $data['id'];
-        $data = $data['data'];
+        $existentAccount = $this->accountRepository->findOneByCustomer($idAccount, input('idCustomer'));
 
-        $existentCompany = $this->accountRepository->findOne($id);
-
-        if (!$existentCompany) {
+        if (!$existentAccount) {
             var_dump("Not possible update");
             exit;
         }
 
-        $company = new CustomerAccount();
-        $company->fill(
-            isset($data['telephone']) ? $data['telephone'] : $existentCompany->getTelephone(),
-            isset($data['address']) ? $data['address'] : $existentCompany->getAddress(),
-            isset($data['email']) ? $data['email'] : $existentCompany->getEmail(),
-            isset($data['password']) ? $data['password'] : $existentCompany->getPassword(),
-            isset($data['company_name']) ? $data['company_name'] : $existentCompany->getCompanyName(),
-            isset($data['cnpj']) ? $data['cnpj'] : $existentCompany->getCnpj(),
-            isset($data['state_registration']) ? $data['state_registration'] : $existentCompany->getStateRegistration(),
-            isset($data['foundation_date']) ? new DateTimeImmutable($data['foundation_date']) : $existentCompany->getFoundationDate(),
-            $existentCompany->getId()
+        $account = new CustomerAccount();
+        $account->fill(
+            !empty(input('current_balance')) ? input('current_balance') : $existentAccount->getCurrentBalance(),
+            !empty(input('type')) ? input('type') : $existentAccount->getType(),
+            !empty(input('description')) ? input('description') : $existentAccount->getDescription(),
+            $account->getNumber()
         );
 
-        var_dump($this->accountRepository->save($company));
+        var_dump($this->accountRepository->save($account, input('idCustomer')));
     }
 
-    public function delete(array $data)
+    public function delete(int $id)
     {
-        $id = $data['params'];
-        $existentCompany = $this->accountRepository->findOne($id);
+        $existentAccount = $this->accountRepository->findOneByCustomer($id, input('idCustomer'));
 
-        if (!$existentCompany) {
+        if (!$existentAccount) {
             var_dump("Not possible delete");
             exit;
         }
 
-        var_dump($this->accountRepository->remove($existentCompany));
+        var_dump($this->accountRepository->remove($existentAccount));
     }
 }

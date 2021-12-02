@@ -12,8 +12,6 @@ interface CustomerAccountRepositoryInterface
 
     public function findOneByCustomer(int $idCustomer, int $idAccount): ?CustomerAccountInterface;
 
-    // public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
-
     public function save(CustomerAccountInterface $account, int $idCustomer): bool;
 
     public function remove(CustomerAccountInterface $account): bool;

@@ -41,23 +41,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             $accountList = [];
 
             while ($accountData = $stmt->fetch()) {
-                // if (!array_key_exists($accountData['id'], $accountList)) {
-                //     $customer = new CustomerAccount();
-                //     $customer->fill(
-                //         $accountData['address'],
-                //         $accountData['telephone'],
-                //         $accountData['email'],
-                //         $accountData['password'],
-                //         $accountData['company_name'],
-                //         $accountData['cnpj'],
-                //         $accountData['state_registration'],
-                //         $accountData['foundation_date'] ? new DateTimeImmutable($accountData['foundation_date']) : NULL,
-                //         $accountData['id'],
-                //         $accountData['created_at'] ? new DateTimeImmutable($accountData['created_at']) : NULL,
-                //         $accountData['updated_at'] ? new DateTimeImmutable($accountData['updated_at']) : NULL
-                //     );
-                // }
-
                 $account = new CustomerAccount();
                 $account->fill(
                     $accountData['current_balance'],
@@ -104,7 +87,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
      * @param int $idAccount
      * @return CustomerInterface
      */
-    public function findOneByCustomer(int $idAccount, int $idCustomer): ?CustomerAccountInterface
+    public function findOneByCustomer(int $idAccount, int $idCustomer = 0): ?CustomerAccountInterface
     {
         try {
             $sql = "SELECT ca.id, ca.customers_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as created_at, ca.updated_at as updated_at FROM customers_accounts as ca WHERE ca.customers_id = :idCustomer AND ca.id = :idAccount";
