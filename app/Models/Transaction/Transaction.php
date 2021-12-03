@@ -10,7 +10,7 @@ use App\Models\CustomerAccount\CustomerAccountInterface;
 class Transaction implements TransactionInterface
 {
     private int $id;
-    private CustomerAccountInterface $account;
+    private int $account_id;
     private int $type;
     private float $amount;
     private string $description;
@@ -21,7 +21,7 @@ class Transaction implements TransactionInterface
         float $amount,
         int $type,
         ?string $description,
-        CustomerAccountInterface $account,
+        int $account_id,
         int $id = 0,
         ?DateTimeImmutable $created_at = null,
         ?DateTimeImmutable $updated_at = null
@@ -29,7 +29,7 @@ class Transaction implements TransactionInterface
         $this->amount = $amount;
         $this->type = $type;
         $this->description = $description;
-        $this->account = $account;
+        $this->account_id = $account_id;
         $this->id = $id;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
@@ -60,7 +60,7 @@ class Transaction implements TransactionInterface
         return $this->type;
     }
 
-    public function getReport(int $idAccount, DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
+    public function getReport(CustomerAccountInterface $account, int $idAccount, DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
     {
         if ($initialData > $finalData) {
             throw new Exception('Invalid date interval');
@@ -73,25 +73,25 @@ class Transaction implements TransactionInterface
 
     public function withdraw(CustomerAccountInterface $account, float $amount): bool
     {
-        if ($this->getCurrentBalance() <= 0 || $this->getCurrentBalance() < $amount) {
+        if ($this->account->getCurrentBalance() <= 0 || $this->account->getCurrentBalance() < $amount) {
             throw new Exception('Insufficient founds');
         }
-        $this->setCurrentBalance($this->getCurrentBalance() - $amount);
+        $this->account->setCurrentBalance($this->account->getCurrentBalance() - $amount);
 
         return true;
     }
 
-    public function deposit(float $amount): bool
+    public function deposit(CustomerAccountInterface $account, float $amount): bool
     {
         if ($amount <= 0) {
             throw new Exception('Invalid amount from deposit');
         }
-        $this->setCurrentBalance($this->getCurrentBalance() + $amount);
+        $this->account->setCurrentBalance($this->account->getCurrentBalance() + $amount);
 
         return true;
     }
 
-    public function transfer(CustomerAccountInterface $destinationAccount, float $amount): bool
+    public function transfer(CustomerAccountInterface $sourceAccount, CustomerAccountInterface $destinationAccount, float $amount): bool
     {
         $destinationAccount = $this->verifyAccount($destinationAccount);
 
@@ -105,7 +105,22 @@ class Transaction implements TransactionInterface
 
         $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
 
-        $this->setCurrentBalance($this->getCurrentBalance() - $amount);
+        $this->sourceAccount->setCurrentBalance($this->getCurrentBalance() - $amount);
+
+        return true;
+    }
+
+    public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool
+    {
+        if (!$amount > 0) {
+            throw new Exception('Invalid amount from payment');
+        }
+
+        if ($this->account->getCurrentBalance() < $amount) {
+            throw new Exception('Insufficient founds');
+        }
+
+        $this->account->setCurrentBalance($this->account->getCurrentBalance() - $amount);
 
         return true;
     }

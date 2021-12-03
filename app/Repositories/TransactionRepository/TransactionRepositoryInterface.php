@@ -6,9 +6,9 @@ use App\Models\Transaction\TransactionInterface;
 
 interface TransactionRepositoryInterface
 {
-    public function findAllByCustomer(): array;
+    public function findAllByAccount(int $idAccount): array;
 
-    public function findOneByDate(int $id): ?TransactionInterface;
+    public function findAllByDateInterval(int $idAccount, string $initialDate, string $finalDate): array;
 
     public function save(TransactionInterface $transactionInterface): bool;
 

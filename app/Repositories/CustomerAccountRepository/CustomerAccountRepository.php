@@ -29,12 +29,12 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     * Fill the CustomerInterface object
+     * Fill the CustomerAccountInterface object
      *
      * @param PDOStatement $stmt
      * @return array
      */
-    public function fillCustomer(PDOStatement $stmt): array
+    public function fillAccount(PDOStatement $stmt): array
     {
         try {
             $stmt->execute();
@@ -74,7 +74,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             $params = ['id' => $idCustomer];
             $stmt = $this->prepareBind($sql, $params);
 
-            return $this->fillCustomer($stmt);
+            return $this->fillAccount($stmt);
         } catch (Exception $e) {
             // throw new Exception("Not possible execute the query");
             throw new Exception($e->getMessage());
@@ -100,11 +100,11 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
 
-            if (!count($this->fillCustomer($stmt)) > 0) {
+            if (!count($this->fillAccount($stmt)) > 0) {
                 return null;
             }
 
-            $customer = $this->fillCustomer($stmt);
+            $customer = $this->fillAccount($stmt);
 
             return array_shift($customer);
         } catch (Exception $e) {

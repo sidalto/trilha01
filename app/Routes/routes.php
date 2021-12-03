@@ -7,6 +7,7 @@ use App\Controllers\HomeController;
 use App\Controllers\AccountController;
 use App\Controllers\CompanyController;
 use App\Controllers\CustomerController;
+use App\Controllers\TransactionController;
 
 SimpleRouter::get('/trilha01', [HomeController::class, 'index']);
 
@@ -27,3 +28,9 @@ SimpleRouter::get('/trilha01/account/{account}/customer/{customer}', [AccountCon
 SimpleRouter::post('/trilha01/account', [AccountController::class, 'create']);
 SimpleRouter::put('/trilha01/account/{id}', [AccountController::class, 'update']);
 SimpleRouter::delete('/trilha01/account/{id}', [AccountController::class, 'delete']);
+
+SimpleRouter::get('/trilha01/transactions/{account}', [TransactionController::class, 'index']);
+SimpleRouter::get('/trilha01/transactions/{account}/{initialDate}/{finalDate}', [TransactionController::class, 'getReport']);
+SimpleRouter::put('/trilha01/transaction/{account}/withdraw', [TransactionController::class, 'withdraw']);
+SimpleRouter::put('/trilha01/transaction/{account}/deposit', [TransactionController::class, 'deposit']);
+SimpleRouter::put('/trilha01/transaction/{account}/transfer/{accountdestination}', [TransactionController::class, 'transfer']);
