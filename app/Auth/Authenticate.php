@@ -10,7 +10,6 @@ use App\Models\Customer\CustomerCompany;
 use App\Models\Customer\CustomerInterface;
 use App\Repositories\CustomerRepository\CustomerPersonRepository;
 use App\Repositories\CustomerRepository\CustomerCompanyRepository;
-use function App\Helpers\request;
 use function App\Helpers\response;
 
 class Authenticate
@@ -49,7 +48,6 @@ class Authenticate
                 ->json([
                     'message' => 'User and password required'
                 ]);
-            // throw new Exception('User and password required', 400);
         }
 
         $this->customer = $this->customerRepository->findByEmail($email);
@@ -61,7 +59,6 @@ class Authenticate
                 ->json([
                     'message' => 'User or password invalid'
                 ]);
-            // throw new Exception('User or password invalid', 400);
         } elseif ($this->customer) {
             $customer = $this->customer;
         } else {
@@ -74,7 +71,6 @@ class Authenticate
                 ->json([
                     'message' => 'User or password invalid'
                 ]);
-            // throw new Exception('User or password invalid', 400);
         }
 
         return $this->generateToken($this->customer);
@@ -107,7 +103,14 @@ class Authenticate
                 $customer = $this->company;
             }
 
-            return $customer;
+            $data = [
+                'id' => $customer->getId(),
+                'email' => $customer->getEmail(),
+                'token' => $token,
+                'name' => ($customer instanceof CustomerPerson) ? $customer->getPersonName() : $customer->getCompanyName()
+            ];
+
+            return $data;
         } catch (Exception $e) {
             response()
                 ->httpCode(400)

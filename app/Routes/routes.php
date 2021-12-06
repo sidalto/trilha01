@@ -15,7 +15,7 @@ use App\Middlewares\AuthMiddleware;
 SimpleRouter::post('/trilha01/auth', [AuthenticateController::class, 'index']);
 
 SimpleRouter::group(['middleware' => AuthMiddleware::class], function () {
-    SimpleRouter::get('/trilha01/dashboard', [HomeController::class, 'index']);
+    SimpleRouter::post('/trilha01/dashboard', [HomeController::class, 'index']);
 
     SimpleRouter::get('/trilha01/companies', [CompanyController::class, 'index']);
     SimpleRouter::get('/trilha01/company/{company}', [CompanyController::class, 'getById']);

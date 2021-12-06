@@ -157,24 +157,28 @@ class CompanyController
 
     public function update(int $id)
     {
-        $existentCompany = $this->companyRepository->findOne($id);
+        $result = $this->companyRepository->findOne($id);
 
-        if (!$existentCompany) {
-            var_dump("Not possible update");
-            exit;
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
         }
 
         $company = new CustomerCompany();
         $company->fill(
-            !empty(input('address')) ? input('address') : $existentCompany->getAddress(),
-            !empty(input('telephone')) ? input('telephone') : $existentCompany->getTelephone(),
-            !empty(input('email')) ? input('email') : $existentCompany->getEmail(),
-            !empty(input('password')) ? input('password') : $existentCompany->getPassword(),
-            !empty(input('company_name')) ? input('company_name') : $existentCompany->getCompanyName(),
-            !empty(input('cnpj')) ? input('cnpj') : $existentCompany->getCnpj(),
-            !empty(input('state_registration')) ? input('state_registration') : $existentCompany->getStateRegistration(),
-            !empty(input('foundation_date')) ? new DateTimeImmutable(input('foundation_date')) : $existentCompany->getFoundationDate(),
-            $existentCompany->getId()
+            !empty(input('address')) ? input('address') : $result->getAddress(),
+            !empty(input('telephone')) ? input('telephone') : $result->getTelephone(),
+            !empty(input('email')) ? input('email') : $result->getEmail(),
+            !empty(input('password')) ? input('password') : $result->getPassword(),
+            !empty(input('company_name')) ? input('company_name') : $result->getCompanyName(),
+            !empty(input('cnpj')) ? input('cnpj') : $result->getCnpj(),
+            !empty(input('state_registration')) ? input('state_registration') : $result->getStateRegistration(),
+            !empty(input('foundation_date')) ? new DateTimeImmutable(input('foundation_date')) : $result->getFoundationDate(),
+            $result->getId()
         );
 
         $result = $this->companyRepository->save($company);

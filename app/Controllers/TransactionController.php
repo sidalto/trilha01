@@ -3,12 +3,11 @@
 namespace App\Controllers;
 
 use App\Database\Connection;
-use function App\Helpers\input;
 use App\Models\Transaction\Transaction;
 use App\Repositories\TransactionRepository\TransactionRepository;
-
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\TransactionRepository\TransactionRepositoryInterface;
+use function App\Helpers\input;
 
 class TransactionController
 {
@@ -22,14 +21,24 @@ class TransactionController
 
     public function index(int $idAccount)
     {
-        $existentAccount = $this->accountRepository->findOneByCustomer(input('idAccount'), input('idCustomer'));
+        $idCustomer = request()->data['id'];
+        $result = $this->accountRepository->findOneByCustomer(input('idAccount'), $idCustomer);
 
-        if (!$existentAccount) {
-            var_dump("Not possible update");
-            exit;
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
         }
 
-        var_dump($this->transactionRepository->findAllByAccount($idAccount));
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => $result
+            ]);
     }
 
     public function getReport(int $idAccount, string $initialDate, string $finalDate)

@@ -6,6 +6,7 @@ use App\Auth\Authenticate;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 
+use function App\Helpers\request;
 use function App\Helpers\response;
 
 class AuthMiddleware implements IMiddleware
@@ -13,9 +14,9 @@ class AuthMiddleware implements IMiddleware
     public function handle(Request $request): void
     {
         $authenticate = new Authenticate();
-        $request->token = $authenticate->verifyAuth();
+        $request->data = $authenticate->verifyAuth();
 
-        if (!$request->token) {
+        if (!$request->data) {
             response()
                 ->httpCode(400)
                 ->json([

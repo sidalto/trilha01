@@ -104,9 +104,9 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
                 return null;
             }
 
-            $customer = $this->fillAccount($stmt);
+            $account = $this->fillAccount($stmt);
 
-            return array_shift($customer);
+            return array_shift($account);
         } catch (Exception $e) {
             throw new Exception("Not possible execute the query");
         }
