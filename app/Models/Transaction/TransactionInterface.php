@@ -7,13 +7,13 @@ use App\Models\CustomerAccount\CustomerAccountInterface;
 
 interface TransactionInterface
 {
-    public function getReport(CustomerAccountInterface $account, int $idAccount, DateTimeImmutable $initialData, DateTimeImmutable $finalData): array;
+    public function getReportByPeriod(int $account, string $initialData, string $finalData): array;
 
-    public function withdraw(CustomerAccountInterface $accountSource, float $amount): bool;
+    public function withdraw(int $idAccount, float $amount, string $description = ''): bool;
 
-    public function deposit(CustomerAccountInterface $account, float $amount): bool;
+    public function deposit(int $idAccount, float $amount, string $description = ''): bool;
 
-    public function transfer(CustomerAccountInterface $accountSource, CustomerAccountInterface $accountDestination, float $amount): bool;
+    public function transfer(int $idSourceAccount, int $idDestinationAccount, float $amount, string $description = ''): bool;
 
     public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool;
 }

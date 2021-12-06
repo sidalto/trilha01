@@ -25,13 +25,13 @@ class CustomerAccount implements CustomerAccountInterface
         ?DateTimeImmutable $created_at = null,
         ?DateTimeImmutable $updated_at = null
     ) {
-        $this->id = $id;
         $this->currentBalance = $currentBalance;
         $this->typeAccount = $typeAccount;
-        $this->created_at = $created_at;
         $this->description = $description;
+        $this->number = $number;
+        $this->id = $id;
+        $this->created_at = $created_at;
         $this->updated_at = $updated_at;
-        $this->verifyNumber($number);
     }
 
     public function getId(): int
@@ -39,8 +39,18 @@ class CustomerAccount implements CustomerAccountInterface
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getNumber(): int
     {
+        if (empty($this->number)) {
+            $newNumber = $this->generateNumber();
+            $this->setNumber($newNumber);
+        }
+
         return $this->number;
     }
 
@@ -57,15 +67,6 @@ class CustomerAccount implements CustomerAccountInterface
         return $number;
     }
 
-    private function verifyNumber(?int $number): void
-    {
-        if (empty($number)) {
-            $newNumber = $this->generateNumber();
-        }
-
-        $this->setNumber($number);
-    }
-
     public function getCurrentBalance(): float
     {
         return $this->currentBalance;
@@ -76,9 +77,9 @@ class CustomerAccount implements CustomerAccountInterface
         return $this->description;
     }
 
-    public function getType(): float
+    public function getTypeAccount(): int
     {
-        return $this->type;
+        return $this->typeAccount;
     }
 
     public function setCurrentBalance(float $currentBalance): void

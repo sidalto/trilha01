@@ -147,11 +147,10 @@ class TransactionRepository implements TransactionRepositoryInterface
             $sql = "INSERT INTO transactions (current_balance, description, type, customers_id, number) VALUES (:current_balance, :description, :type, :customers_id, :number)";
 
             $params = [
-                'current_balance' => $transaction->getCurrentBalance(),
+                'current_balance' => $transaction->getAmount(),
                 'description' => $transaction->getDescription(),
                 'type' => $transaction->getType(),
-                'customers_id' => $customerId,
-                'number' => $transaction->getNumber()
+                'account_id' => $idAccount
             ];
 
             $stmt = $this->prepareBind($sql, $params);

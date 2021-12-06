@@ -12,7 +12,9 @@ interface CustomerAccountRepositoryInterface
 
     public function findOneByCustomer(int $idCustomer, int $idAccount): ?CustomerAccountInterface;
 
-    public function save(CustomerAccountInterface $account, int $idCustomer): bool;
+    public function findByAccountNumber(int $accountNumber): ?CustomerAccountInterface;
+
+    public function save(CustomerAccountInterface $account, int $idCustomer): ?int;
 
     public function remove(CustomerAccountInterface $account): bool;
 }

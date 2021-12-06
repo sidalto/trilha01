@@ -6,8 +6,8 @@ use App\Database\Connection;
 use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepositoryInterface;
-
 use function App\Helpers\input;
+use function App\Helpers\response;
 
 class AccountController
 {
@@ -20,18 +20,70 @@ class AccountController
 
     public function index(int $idCustomer)
     {
-        var_dump($this->accountRepository->findAllByCustomer($idCustomer));
+        $result = $this->accountRepository->findAllByCustomer($idCustomer);
+
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
+        }
+
+        $accounts = [];
+
+        foreach ($result as $key => $account) {
+            $accounts[] = [
+                'current_balance' => $account->getCurrentBalance(),
+                'type' => $account->getTypeAccount(),
+                'description' => $account->getDescription(),
+                'number' => $account->getNumber(),
+                'ca_id' => $idCustomer
+            ];
+        }
+
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => $accounts
+            ]);
     }
 
     public function getById(int $idAccount, int $idCustomer)
     {
-        var_dump($this->accountRepository->findOneByCustomer($idAccount, $idCustomer));
+        $result = $this->accountRepository->findOneByCustomer($idAccount, $idCustomer);
+
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
+        }
+
+        $accounts = [];
+
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => [
+                    'id' => $result->getId(),
+                    'current_balance' => $result->getCurrentBalance(),
+                    'type' => $result->getTypeAccount(),
+                    'description' => $result->getDescription(),
+                    'number' => $result->getNumber(),
+                    'company_id' => $idCustomer
+                ]
+            ]);
     }
 
     public function create()
     {
         $account = new CustomerAccount();
-
         $account->fill(
             input('current_balance'),
             input('type'),
@@ -39,38 +91,77 @@ class AccountController
             $account->getNumber()
         );
 
-        $this->accountRepository->save($account, input('idCustomer'));
+        $result = $this->accountRepository->save($account, input('customers_id'));
+
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => []
+            ]);
     }
 
     public function update(int $idAccount)
     {
-        $existentAccount = $this->accountRepository->findOneByCustomer($idAccount, input('idCustomer'));
+        $result = $this->accountRepository->findOneByCustomer($idAccount, input('customers_id'));
 
-        if (!$existentAccount) {
-            var_dump("Not possible update");
-            exit;
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
         }
 
         $account = new CustomerAccount();
         $account->fill(
-            !empty(input('current_balance')) ? input('current_balance') : $existentAccount->getCurrentBalance(),
-            !empty(input('type')) ? input('type') : $existentAccount->getType(),
-            !empty(input('description')) ? input('description') : $existentAccount->getDescription(),
-            $account->getNumber()
+            !empty(input('current_balance')) ? input('current_balance') : $result->getCurrentBalance(),
+            !empty(input('type')) ? input('type') : $result->getType(),
+            !empty(input('description')) ? input('description') : $result->getDescription(),
+            $account->getNumber(),
+            $result->getId()
         );
 
-        var_dump($this->accountRepository->save($account, input('idCustomer')));
+        $result = $this->accountRepository->save($account, input('customers_id'));
+
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => []
+            ]);
     }
 
-    public function delete(int $id)
+    public function delete(int $idAccount, int $idCustomer)
     {
-        $existentAccount = $this->accountRepository->findOneByCustomer($id, input('idCustomer'));
+        $result = $this->accountRepository->findOneByCustomer($idAccount, $idCustomer);
 
-        if (!$existentAccount) {
-            var_dump("Not possible delete");
-            exit;
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
         }
 
-        var_dump($this->accountRepository->remove($existentAccount));
+        $result = $this->accountRepository->remove($result);
+
+        if (!$result) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => 'Error',
+                    'data' => []
+                ]);
+        }
+
+        return response()
+            ->httpCode(200)
+            ->json([
+                'message' => 'Success',
+                'data' => []
+            ]);
     }
 }

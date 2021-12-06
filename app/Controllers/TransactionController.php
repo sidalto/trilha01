@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Database\Connection;
 use function App\Helpers\input;
 use App\Models\Transaction\Transaction;
-use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\TransactionRepository\TransactionRepository;
 
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
@@ -23,6 +22,13 @@ class TransactionController
 
     public function index(int $idAccount)
     {
+        $existentAccount = $this->accountRepository->findOneByCustomer(input('idAccount'), input('idCustomer'));
+
+        if (!$existentAccount) {
+            var_dump("Not possible update");
+            exit;
+        }
+
         var_dump($this->transactionRepository->findAllByAccount($idAccount));
     }
 
@@ -31,49 +37,30 @@ class TransactionController
         var_dump($this->transactionRepository->findAllByDateInterval($idAccount, $initialDate, $finalDate));
     }
 
-    public function create()
+    public function withdraw()
     {
-        $transaction = new Transaction();
-
-        $transaction->fill(
-            input('current_balance'),
-            input('type'),
-            input('description'),
-            $transaction->getNumber()
-        );
-
-        $this->transactionRepository->save($transaction, input('idCustomer'));
-    }
-
-    public function withdraw(int $idAccount)
-    {
-        $existentAccount = $this->transactionRepository->findAllByAccount($idAccount);
+        $existentAccount = $this->accountRepository->findOneByCustomer(input('idAccount'), input('idCustomer'));
 
         if (!$existentAccount) {
             var_dump("Not possible update");
             exit;
         }
 
-        $account = new CustomerAccount();
-        $account->fill(
-            !empty(input('current_balance')) ? input('current_balance') : $existentAccount->getCurrentBalance(),
-            !empty(input('type')) ? input('type') : $existentAccount->getType(),
-            !empty(input('description')) ? input('description') : $existentAccount->getDescription(),
-            $account->getNumber()
+        $transaction = new Transaction();
+
+        $transaction->fill(
+            input('account_id'),
+            input('type'),
+            input('amount'),
+            input('description'),
         );
 
-        var_dump($this->transactionRepository->save($account, input('idCustomer')));
-    }
-
-    public function delete(int $id)
-    {
-        $existentAccount = $this->transactionRepository->findOneByCustomer($id, input('idCustomer'));
 
         if (!$existentAccount) {
-            var_dump("Not possible delete");
+            var_dump("Not possible update");
             exit;
         }
 
-        var_dump($this->transactionRepository->remove($existentAccount));
+        var_dump($this->transactionRepository->save($transaction));
     }
 }

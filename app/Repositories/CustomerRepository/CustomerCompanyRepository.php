@@ -126,39 +126,59 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
         }
     }
 
+    public function findByEmail(string $email): ?CustomerInterface
+    {
+        try {
+            $sql = "SELECT c.id, c.person_name, c.cpf, c.rg, c.birth_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.email = :email";
+
+            $params = ['email' => $email];
+            $stmt = $this->prepareBind($sql, $params);
+            $stmt->execute();
+
+            if (!count($this->fillCustomer($stmt)) > 0) {
+                return null;
+            }
+
+            $customer = $this->fillCustomer($stmt);
+            return array_shift($customer);
+        } catch (Exception $e) {
+            throw new Exception("Not possible execute the query");
+        }
+    }
+
     /**
      *
      * @param CustomerInterface $customer
      * @return bool
      */
-    public function save(CustomerInterface $customer): bool
+    public function save(CustomerInterface $customer): ?int
     {
         if (!$customer->getId()) {
             return $this->insert($customer);
         }
-        // var_dump($customer);
+
         return $this->update($customer);
     }
 
     /**
      *            
      * @param CustomerInterface $customer
-     * @return bool
+     * @return int|null
      */
-    private function insert(CustomerInterface $customer): bool
+    private function insert(CustomerInterface $company): ?int
     {
         try {
             $sql = "INSERT INTO customers (company_name, cnpj, state_registration, foundation_date, address, telephone, email, password, is_company) VALUES (:company_name, :cnpj, :state_registration, :foundation_date, :address, :telephone, :email, :password, :is_company);";
 
             $params = [
-                'company_name' => $customer->getCompanyName(),
-                'cnpj' => $customer->getCnpj(),
-                'state_registration' => $customer->getStateRegistration(),
-                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
-                'address' => $customer->getAddress(),
-                'telephone' => $customer->getTelephone(),
-                'email' => $customer->getEmail(),
-                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
+                'company_name' => $company->getCompanyName(),
+                'cnpj' => $company->getCnpj(),
+                'state_registration' => $company->getStateRegistration(),
+                'foundation_date' => $company->getFoundationDate()->format('Y-m-d'),
+                'address' => $company->getAddress(),
+                'telephone' => $company->getTelephone(),
+                'email' => $company->getEmail(),
+                'password' => password_hash($company->getPassword(), PASSWORD_DEFAULT),
                 'is_company' => 1,
             ];
 
@@ -166,10 +186,10 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
             $result = $stmt->execute();
 
             if ($result) {
-                $customer->setId($this->getInsertId());
+                $company->setId($this->getInsertId());
             }
 
-            return $result;
+            return $company->getId();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
             throw new Exception("Not possible save the customer");
@@ -179,29 +199,34 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     /**
      *
      * @param CustomerInterface $customer
-     * @return bool
+     * @return int|null
      */
-    private function update(CustomerInterface $customer): bool
+    private function update(CustomerInterface $company): ?int
     {
         try {
 
             $sql = "UPDATE customers SET company_name = :company_name, cnpj = :cnpj, state_registration = :state_registration, foundation_date = :foundation_date,  address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id";
 
             $params = [
-                'company_name' => $customer->getCompanyName(),
-                'cnpj' => $customer->getCnpj(),
-                'state_registration' => $customer->getStateRegistration(),
-                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
-                'address' => $customer->getAddress(),
-                'telephone' => $customer->getTelephone(),
-                'email' => $customer->getEmail(),
-                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
-                'id' => $customer->getId()
+                'company_name' => $company->getCompanyName(),
+                'cnpj' => $company->getCnpj(),
+                'state_registration' => $company->getStateRegistration(),
+                'foundation_date' => $company->getFoundationDate()->format('Y-m-d'),
+                'address' => $company->getAddress(),
+                'telephone' => $company->getTelephone(),
+                'email' => $company->getEmail(),
+                'password' => password_hash($company->getPassword(), PASSWORD_DEFAULT),
+                'id' => $company->getId()
             ];
 
             $stmt = $this->prepareBind($sql, $params);
+            $result = $stmt->execute();
 
-            return $stmt->execute();
+            if ($result) {
+                return $company->getId();
+            }
+
+            return $result;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
             throw new Exception("Not possible update the customer");

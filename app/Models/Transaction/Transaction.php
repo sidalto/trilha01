@@ -9,9 +9,9 @@ use App\Models\CustomerAccount\CustomerAccountInterface;
 
 class Transaction implements TransactionInterface
 {
+    private int $type;
     private int $id;
     private int $account_id;
-    private int $type;
     private float $amount;
     private string $description;
     private ?DateTimeImmutable $created_at;
@@ -50,64 +50,117 @@ class Transaction implements TransactionInterface
         return $this->description;
     }
 
-    public function getCurrentBalance(): float
-    {
-        return $this->currentBalance;
-    }
-
     public function getType(): float
     {
         return $this->type;
     }
 
-    public function getReport(CustomerAccountInterface $account, int $idAccount, DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
+    public function getReportByPeriod(int $idAccount, string $initialDate, string $finalDate): array
     {
-        if ($initialData > $finalData) {
+        $account = $this->accountRepositoryInterface->findOne($idAccount);
+
+        if (!$account) {
+            throw new Exception('Invalid account');
+        }
+
+        if ($initialDate > $finalDate) {
             throw new Exception('Invalid date interval');
         }
 
-        $transactionReport = $this->transactionRepositoryInterface->getTransactionReport($idAccount, $initialData, $finalData);
+        $transactionReport = $this->transactionRepositoryInterface->findAllByDateInterval($idAccount, $initialDate, $finalDate);
 
         return $transactionReport;
     }
 
-    public function withdraw(CustomerAccountInterface $account, float $amount): bool
+    public function withdraw(int $idAccount, float $amount, string $description = ''): bool
     {
-        if ($this->account->getCurrentBalance() <= 0 || $this->account->getCurrentBalance() < $amount) {
+        $account = $this->accountRepositoryInterface->findOne($idAccount);
+
+        if (!$account) {
+            throw new Exception('Invalid account');
+        }
+
+        if ($account->getCurrentBalance() <= 0 || $account->getCurrentBalance() < $amount) {
             throw new Exception('Insufficient founds');
         }
-        $this->account->setCurrentBalance($this->account->getCurrentBalance() - $amount);
 
-        return true;
+        $account->setCurrentBalance($account->getCurrentBalance() - $amount);
+        $result = $this->accountRepositoryInterface->save($account);
+
+        if (!$result) {
+            throw new Exception('Withdraw error');
+        }
+
+        $this->fill($amount, 1, $description, $account->getId());
+        $transactionStatus = $this->transactionRepositoryInterface->save($this);
+
+        return $transactionStatus;
     }
 
-    public function deposit(CustomerAccountInterface $account, float $amount): bool
+    public function deposit(int $idAccount, float $amount, string $description = ''): bool
     {
+        $account = $this->accountRepositoryInterface->findOne($idAccount);
+
+        if (!$account) {
+            throw new Exception('Invalid account');
+        }
+
         if ($amount <= 0) {
             throw new Exception('Invalid amount from deposit');
         }
-        $this->account->setCurrentBalance($this->account->getCurrentBalance() + $amount);
 
-        return true;
+        $account->setCurrentBalance($account->getCurrentBalance() + $amount);
+        $result = $this->accountRepositoryInterface->save($account);
+
+        if (!$result) {
+            throw new Exception('Deposit error');
+        }
+
+        $this->fill($amount, 1, $description, $account->getId());
+        $transactionStatus = $this->transactionRepositoryInterface->save($this);
+
+        return $transactionStatus;
     }
 
-    public function transfer(CustomerAccountInterface $sourceAccount, CustomerAccountInterface $destinationAccount, float $amount): bool
+    public function transfer(int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
     {
-        $destinationAccount = $this->verifyAccount($destinationAccount);
+        $sourceAccount = $this->accountRepositoryInterface->findOne($idSourceAccount);
+        $destinationAccount = $this->accountRepositoryInterface->findByAccountNumber($destinationAccountNumber);
+
+        if (!$sourceAccount) {
+            throw new Exception('Invalid source account');
+        }
+
+        if (!$destinationAccount) {
+            throw new Exception('Invalid destination account');
+        }
 
         if (!$amount > 0) {
             throw new Exception('Invalid amount from transfer');
         }
 
-        if (!$destinationAccount) {
-            throw new Exception('Invalid destination account from transfer');
+        $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
+        $result = $this->accountRepositoryInterface->save($destinationAccount);
+
+        if (!$result) {
+            throw new Exception('Withdraw error');
         }
 
-        $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
+        $sourceAccount->setCurrentBalance($sourceAccount->getCurrentBalance() - $amount);
+        $result = $this->accountRepositoryInterface->save($sourceAccount);
 
-        $this->sourceAccount->setCurrentBalance($this->getCurrentBalance() - $amount);
+        if (!$result) {
+            throw new Exception('Withdraw error');
+        }
 
-        return true;
+        $this->fill($amount, 1, $description, $destinationAccount->getId());
+        $destinationTransaction = $this->transactionRepositoryInterface->save($this);
+
+        $this->fill($amount, 1, $description, $sourceAccount->getId());
+        $sourceTransaction = $this->transactionRepositoryInterface->save($this);
+
+
+        return $destinationTransaction;
     }
 
     public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool
