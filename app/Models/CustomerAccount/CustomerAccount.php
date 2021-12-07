@@ -12,7 +12,7 @@ class CustomerAccount implements CustomerAccountInterface
     private int $number;
     private float $currentBalance;
     private int $typeAccount;
-    private string $description;
+    private ?string $description;
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 

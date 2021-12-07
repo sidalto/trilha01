@@ -49,7 +49,7 @@ class TransactionRepository implements TransactionRepositoryInterface
                 $transaction->fill(
                     $transactionData['amount'],
                     $transactionData['type'],
-                    $transactionData['description'],
+                    $transactionData['description'] ?: '',
                     $transactionData['account_id'],
                     $transactionData['id'],
                     new DateTimeImmutable($transactionData['created_at']),
@@ -81,8 +81,8 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $this->fillTransaction($stmt);
         } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+            throw new Exception("Not possible execute the query");
+            // throw new Exception($e->getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ class TransactionRepository implements TransactionRepositoryInterface
     public function findAllByDateInterval(int $idAccount, string $initialDate, string $finalDate): array
     {
         try {
-            $sql = "SELECT t.id, c.id as customer_id, ca.id as account_id, ca.number as account_number, t.amount, t.description, t.type, t.created_at, t.updated_at FROM customers as c INNER JOIN customers_accounts as ca ON (c.id = ca.customers_id) INNER JOIN transactions as t ON (t.account_id = ca.id) AND ca.id = :idAccount AND t.created_at >= :initialDate AND t.created_at <= :finalDate";
+            $sql = "SELECT t.id, t.account_id, t.amount, t.description, t.type, t.created_at, t.updated_at, ca.number as account_number FROM transactions as t JOIN customers_accounts as ca ON (t.account_id = ca.id) AND ca.id = :idAccount AND t.created_at BETWEEN :initialDate AND :finalDate ORDER BY t.created_at DESC";
 
             $initialDate = $initialDate . " 00:00:00";
             $finalDate = $finalDate . " 23:59:59";
@@ -109,15 +109,16 @@ class TransactionRepository implements TransactionRepositoryInterface
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
 
-            if (!count($this->fillTransaction($stmt)) > 0) {
-                return null;
-            }
+            // if (!count($this->fillTransaction($stmt)) > 0) {
+            //     return null;
+            // }
 
             $transactions = $this->fillTransaction($stmt);
 
             return $transactions;
         } catch (Exception $e) {
             throw new Exception("Not possible execute the query");
+            // throw new Exception($e->getMessage());
         }
     }
 

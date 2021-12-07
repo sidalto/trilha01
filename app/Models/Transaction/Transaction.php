@@ -4,8 +4,11 @@ namespace App\Models\Transaction;
 
 use Exception;
 use DateTimeImmutable;
+use App\Database\Connection;
 use App\Models\Transaction\TransactionInterface;
 use App\Models\CustomerAccount\CustomerAccountInterface;
+use App\Repositories\TransactionRepository\TransactionRepository;
+use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 
 class Transaction implements TransactionInterface
 {
@@ -55,26 +58,32 @@ class Transaction implements TransactionInterface
         return $this->type;
     }
 
+    public function getCreatedAt(): ?DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function getAccountId(): int
+    {
+        return $this->account_id;
+    }
+
     public function getReportByPeriod(int $idAccount, string $initialDate, string $finalDate): array
     {
-        $account = $this->accountRepositoryInterface->findOne($idAccount);
-
-        if (!$account) {
-            throw new Exception('Invalid account');
-        }
-
         if ($initialDate > $finalDate) {
             throw new Exception('Invalid date interval');
         }
 
-        $transactionReport = $this->transactionRepositoryInterface->findAllByDateInterval($idAccount, $initialDate, $finalDate);
+        $transactionRepository = new TransactionRepository(Connection::getInstance());
+        $transactions = $transactionRepository->findAllByDateInterval($idAccount, $initialDate, $finalDate);
 
-        return $transactionReport;
+        return $transactions;
     }
 
     public function withdraw(int $idAccount, float $amount, string $description = ''): bool
     {
-        $account = $this->accountRepositoryInterface->findOne($idAccount);
+        $accountRepository = new CustomerAccountRepository(Connection::getInstance());
+        $account = $accountRepository->findOne($idAccount);
 
         if (!$account) {
             throw new Exception('Invalid account');
