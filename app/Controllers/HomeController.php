@@ -14,6 +14,7 @@ class HomeController
     public function __construct()
     {
         $this->customerRepository = new CustomerPersonRepository(Connection::getInstance());
+        $this->companyRepository = new CustomerPersonRepository(Connection::getInstance());
         $this->accountRepository = new CustomerAccountRepository(Connection::getInstance());
     }
 
@@ -21,7 +22,13 @@ class HomeController
     {
         $idCustomer = request()->data['id'];
         $name = request()->data['name'];
-        $idAccount = input('idAccount');
+        $email = request()->data['email'];
+
+        $this->customer = $this->customerRepository->findByEmail($email);
+        $this->company = $this->companyRepository->findByEmail($email);
+
+        $customer = $this->customer ?: $this->company;
+        $idAccount = $customer->getAccounts()[0]->getId();
 
         $result = $this->accountRepository->findOneByCustomer($idAccount, $idCustomer);
 
@@ -42,7 +49,8 @@ class HomeController
                     'id' => $result->getId(),
                     'current_balance' => $result->getCurrentBalance(),
                     'number' => $result->getNumber(),
-                    'name' => $name
+                    'type' => $result->getTypeAccount(),
+                    'name' => $name,
                 ]
             ]);
     }

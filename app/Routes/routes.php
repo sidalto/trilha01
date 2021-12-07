@@ -13,19 +13,20 @@ use App\Middlewares\AuthMiddleware;
 
 // SimpleRouter::get('/trilha01/login', [LoginController::class, 'index']);
 SimpleRouter::post('/trilha01/auth', [AuthenticateController::class, 'index']);
+SimpleRouter::post('/trilha01/customer', [CustomerController::class, 'create']);
+SimpleRouter::post('/trilha01/company', [CompanyController::class, 'create']);
+
 
 SimpleRouter::group(['middleware' => AuthMiddleware::class], function () {
-    SimpleRouter::post('/trilha01/dashboard', [HomeController::class, 'index']);
+    SimpleRouter::get('/trilha01/dashboard', [HomeController::class, 'index']);
 
     SimpleRouter::get('/trilha01/companies', [CompanyController::class, 'index']);
     SimpleRouter::get('/trilha01/company/{company}', [CompanyController::class, 'getById']);
-    SimpleRouter::post('/trilha01/company', [CompanyController::class, 'create']);
     SimpleRouter::put('/trilha01/company/{company}', [CompanyController::class, 'update']);
     SimpleRouter::delete('/trilha01/company/{company}', [CompanyController::class, 'delete']);
 
     SimpleRouter::get('/trilha01/customers', [CustomerController::class, 'index']);
     SimpleRouter::get('/trilha01/customer/{customer}', [CustomerController::class, 'getById']);
-    SimpleRouter::post('/trilha01/customer', [CustomerController::class, 'create']);
     SimpleRouter::put('/trilha01/customer/{customer}', [CustomerController::class, 'update']);
     SimpleRouter::delete('/trilha01/customer/{customer}', [CustomerController::class, 'delete']);
 

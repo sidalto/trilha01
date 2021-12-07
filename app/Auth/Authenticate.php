@@ -53,7 +53,7 @@ class Authenticate
         $this->customer = $this->customerRepository->findByEmail($email);
         $this->company = $this->companyRepository->findByEmail($email);
 
-        if (!$this->customer && $this->company) {
+        if (!$this->customer && !$this->company) {
             response()
                 ->httpCode(400)
                 ->json([

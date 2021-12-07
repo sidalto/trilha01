@@ -130,7 +130,7 @@ class CustomerController
 
         $account->fill(
             0.00,
-            1,
+            0,
             '',
             $account->getNumber()
         );
