@@ -9,7 +9,7 @@ interface TransactionInterface
 {
     public function getReportByPeriod(int $account, string $initialData, string $finalData): array;
 
-    public function withdraw(int $idAccount, float $amount, string $description = ''): bool;
+    public function withdraw(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool;
 
     public function deposit(int $idAccount, float $amount, string $description = ''): bool;
 

@@ -145,10 +145,12 @@ class TransactionRepository implements TransactionRepositoryInterface
     private function insert(TransactionInterface $transaction, int $idAccount): bool
     {
         try {
-            $sql = "INSERT INTO transactions (current_balance, description, type, customers_id, number) VALUES (:current_balance, :description, :type, :customers_id, :number)";
+            // var_dump($transaction, $idAccount);
+
+            $sql = "INSERT INTO transactions (amount, description, type, account_id) VALUES (:amount, :description, :type, :account_id)";
 
             $params = [
-                'current_balance' => $transaction->getAmount(),
+                'amount' => $transaction->getAmount(),
                 'description' => $transaction->getDescription(),
                 'type' => $transaction->getType(),
                 'account_id' => $idAccount

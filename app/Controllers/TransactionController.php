@@ -7,6 +7,8 @@ use App\Models\Transaction\Transaction;
 use App\Repositories\TransactionRepository\TransactionRepository;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\TransactionRepository\TransactionRepositoryInterface;
+use Exception;
+
 use function App\Helpers\input;
 use function App\Helpers\request;
 use function App\Helpers\response;
@@ -48,56 +50,52 @@ class TransactionController
         var_dump($this->transactionRepository->findAllByDateInterval($idAccount, $initialDate, $finalDate));
     }
 
-    public function withdraw()
+    public function withdraw(int $idAccount)
     {
-        $existentAccount = $this->accountRepository->findOneByCustomer(input('idAccount'), input('idCustomer'));
+        try {
+            $amount = input('amount');
+            $idCustomer = request()->data['id'];
+            $transaction = new Transaction();
+            $transaction->withdraw($idCustomer, $idAccount, $amount);
 
-        if (!$existentAccount) {
-            var_dump("Not possible update");
-            exit;
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => []
+                ]);
+        } catch (Exception $e) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ]);
         }
-
-        $transaction = new Transaction();
-
-        $transaction->fill(
-            input('account_id'),
-            input('type'),
-            input('amount'),
-            input('description'),
-        );
-
-
-        if (!$existentAccount) {
-            var_dump("Not possible update");
-            exit;
-        }
-
-        var_dump($this->transactionRepository->save($transaction));
     }
 
     public function transfer(int $idAccount)
     {
-        $destinationAccountNumber = input('account_number');
-        $amount = input('amount');
-        $idCustomer = request()->data['id'];
+        try {
+            $destinationAccountNumber = input('account_number');
+            $amount = input('amount');
+            $idCustomer = request()->data['id'];
+            $transaction = new Transaction();
+            $transaction->transfer($idCustomer, $idAccount, $destinationAccountNumber, $amount);
 
-        $transaction = new Transaction();
-        $result = $transaction->transfer($idCustomer, $idAccount, $destinationAccountNumber, $amount);
-
-        if (!$result) {
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => []
+                ]);
+        } catch (Exception $e) {
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => $e->getMessage(),
                     'data' => []
                 ]);
         }
-
-        return response()
-            ->httpCode(200)
-            ->json([
-                'message' => 'Success',
-                'data' => []
-            ]);
     }
 }

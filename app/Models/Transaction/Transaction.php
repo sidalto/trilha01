@@ -12,7 +12,12 @@ use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 
 class Transaction implements TransactionInterface
 {
-    private int $type;
+    private array $typeTransaction = [
+        'DEPOSITO' => 1,
+        'SAQUE' => 2,
+        'TRANSFERENCIA' => 3,
+        'PAGAMENTO' => 4
+    ];
     private int $id;
     private int $account_id;
     private float $amount;
@@ -43,9 +48,19 @@ class Transaction implements TransactionInterface
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getAmount(): float
     {
         return $this->amount;
+    }
+
+    public function setAmount(floatl $amount): void
+    {
+        $this->amount = $amount;
     }
 
     public function getDescription(): string
@@ -71,7 +86,7 @@ class Transaction implements TransactionInterface
     public function getReportByPeriod(int $idAccount, string $initialDate, string $finalDate): array
     {
         if ($initialDate > $finalDate) {
-            throw new Exception('Invalid date interval');
+            throw new Exception('Intervalo de datas inválido');
         }
 
         $transactionRepository = new TransactionRepository(Connection::getInstance());
@@ -80,35 +95,37 @@ class Transaction implements TransactionInterface
         return $transactions;
     }
 
-    public function withdraw(int $idAccount, float $amount, string $description = ''): bool
+    public function withdraw(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
+        $transactionRepository = new TransactionRepository(Connection::getInstance());
         $accountRepository = new CustomerAccountRepository(Connection::getInstance());
-        $account = $accountRepository->findOne($idAccount);
+        $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
 
         if (!$account) {
-            throw new Exception('Invalid account');
+            throw new Exception('Conta inválida');
         }
 
         if ($account->getCurrentBalance() <= 0 || $account->getCurrentBalance() < $amount) {
-            throw new Exception('Insufficient founds');
+            throw new Exception('Saldo insuficiente');
         }
 
         $account->setCurrentBalance($account->getCurrentBalance() - $amount);
-        $result = $accountRepository->save($account);
+        $result = $accountRepository->save($account, $idCustomer);
 
         if (!$result) {
-            throw new Exception('Withdraw error');
+            throw new Exception('Erro ao processar o saque');
         }
 
-        $this->fill($amount, 1, $description, $account->getId());
-        $transactionStatus = $this->transactionRepositoryInterface->save($this);
+        $this->fill($amount, $this->typeTransaction['SAQUE'], $description, $account->getId());
+        $transactionStatus = $transactionRepository->save($this);
 
         return $transactionStatus;
     }
 
     public function deposit(int $idAccount, float $amount, string $description = ''): bool
     {
-        $account = $this->accountRepositoryInterface->findOne($idAccount);
+        $transactionRepository = new TransactionRepository(Connection::getInstance());
+        $account = $this->transactionRepository->findOne($idAccount);
 
         if (!$account) {
             throw new Exception('Invalid account');
@@ -119,42 +136,46 @@ class Transaction implements TransactionInterface
         }
 
         $account->setCurrentBalance($account->getCurrentBalance() + $amount);
-        $result = $this->accountRepositoryInterface->save($account);
+        $result = $transactionRepository->save($account);
 
         if (!$result) {
             throw new Exception('Deposit error');
         }
 
-        $this->fill($amount, 1, $description, $account->getId());
-        $transactionStatus = $this->transactionRepositoryInterface->save($this);
+        $this->fill($amount, $this->typeTransaction['DEPOSITO'], $description, $account->getId());
+        $transactionStatus = $transactionRepository->save($this);
 
         return $transactionStatus;
     }
 
     public function transfer(int $idCustomer, int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
     {
+        $transactionRepository = new TransactionRepository(Connection::getInstance());
         $accountRepository = new CustomerAccountRepository(Connection::getInstance());
         $sourceAccount = $accountRepository->findOneByCustomer($idSourceAccount, $idCustomer);
         $destinationAccount = $accountRepository->findByAccountNumber($destinationAccountNumber);
 
-        if (!$sourceAccount) {
-            throw new Exception('Invalid source account');
+        if (!$sourceAccount || !$destinationAccount) {
+            throw new Exception('Conta incorreta para transferência');
         }
 
-        if (!$destinationAccount) {
-            throw new Exception('Invalid destination account');
+        if ($sourceAccount->getCurrentBalance() < $amount) {
+            throw new Exception('Saldo insuficiente');
         }
 
         if (!$amount > 0) {
-            throw new Exception('Invalid amount from transfer');
+            throw new Exception('Valor incorreto para transferência');
         }
 
         $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
         $result = $accountRepository->save($destinationAccount, $idCustomer);
 
         if (!$result) {
-            throw new Exception('Withdraw error');
+            throw new Exception('Erro ao realizar a transferência');
         }
+
+        $this->fill($amount, $this->typeTransaction['TRANSFERENCIA'], $description, $destinationAccount->getId());
+        $transactionRepository->save($this);
 
         $sourceAccount->setCurrentBalance($sourceAccount->getCurrentBalance() - $amount);
         $result = $accountRepository->save($sourceAccount, $idCustomer);
@@ -162,6 +183,9 @@ class Transaction implements TransactionInterface
         if (!$result) {
             throw new Exception('Withdraw error');
         }
+
+        $this->fill($amount, $this->typeTransaction['TRANSFERENCIA'], $description, $sourceAccount->getId());
+        $transactionRepository->save($this);
 
         return $result;
     }
