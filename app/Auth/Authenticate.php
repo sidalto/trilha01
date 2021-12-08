@@ -95,9 +95,15 @@ class Authenticate
             $this->customer = $this->customerRepository->findByEmail($email);
             $this->company = $this->companyRepository->findByEmail($email);
 
-            if (!$this->customer && $this->company) {
-                return null;
-            } elseif ($this->customer) {
+            if (!$this->customer && !$this->company) {
+                response()
+                    ->httpCode(400)
+                    ->json([
+                        'message' => 'Invalid access token'
+                    ]);
+            }
+
+            if ($this->customer) {
                 $customer = $this->customer;
             } else {
                 $customer = $this->company;

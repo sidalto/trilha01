@@ -85,9 +85,9 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
      *
      * @param int $idAccount
      * @param int $idCustomer
-     * @return CustomerInterface
+     * @return CustomerAccountInterface
      */
-    public function findOneByCustomer(int $idAccount, int $idCustomer = 0): ?CustomerAccountInterface
+    public function findOneByCustomer(int $idAccount, int $idCustomer): ?CustomerAccountInterface
     {
         try {
             $sql = "SELECT ca.id, ca.customers_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as created_at, ca.updated_at as updated_at FROM customers_accounts as ca WHERE ca.customers_id = :idCustomer AND ca.id = :idAccount";
@@ -114,26 +114,24 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
     /**
      *
-     * @param int $idCustomer
-     * @param int $idAccount
-     * @return CustomerInterface
+     * @param int $accountNumber
+     * @return CustomerAccountInterface
      */
     public function findByAccountNumber(int $accountNumber): ?CustomerAccountInterface
     {
         try {
             $sql = "SELECT ca.id, ca.customers_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as created_at, ca.updated_at as updated_at FROM customers_accounts as ca WHERE ca.number = :accountNumber";
 
-            $params = ['number' => $accountNumber];
+            $params = ['accountNumber' => $accountNumber];
 
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
 
             if (!count($this->fillAccount($stmt)) > 0) {
-                return null;
+                throw new Exception("Account not found");
             }
 
             $customer = $this->fillAccount($stmt);
-
             return array_shift($customer);
         } catch (Exception $e) {
             throw new Exception("Not possible execute the query");
@@ -151,7 +149,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             return $this->insert($account, $idCustomer);
         }
 
-        return $this->update($account, $idCustomer);
+        return $this->update($account);
     }
 
     /**
@@ -191,17 +189,16 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
      * @param CustomerInterface $customer
      * @return int|null
      */
-    private function update(CustomerAccountInterface $account, int $idCustomer): ?int
+    private function update(CustomerAccountInterface $account): ?int
     {
         try {
 
-            $sql = "UPDATE customers_accounts SET current_balance = :current_balance, description = :description, type = :type, customers_id = :customers_id WHERE id = :id";
+            $sql = "UPDATE customers_accounts SET current_balance = :current_balance, description = :description, type = :type WHERE id = :id";
 
             $params = [
                 'current_balance' => $account->getCurrentBalance(),
                 'description' => $account->getDescription(),
                 'type' => $account->getTypeAccount(),
-                'customers_id' => $idCustomer,
                 'id' => $account->getId()
             ];
 

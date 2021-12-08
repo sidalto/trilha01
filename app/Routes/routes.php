@@ -40,5 +40,5 @@ SimpleRouter::group(['middleware' => AuthMiddleware::class], function () {
     SimpleRouter::get('/trilha01/transactions/{account}/{initialDate}/{finalDate}', [TransactionController::class, 'getReport']);
     SimpleRouter::put('/trilha01/transaction/{account}/withdraw', [TransactionController::class, 'withdraw']);
     SimpleRouter::put('/trilha01/transaction/{account}/deposit', [TransactionController::class, 'deposit']);
-    SimpleRouter::put('/trilha01/transaction/{account}/transfer/', [TransactionController::class, 'transfer']);
+    SimpleRouter::put('/trilha01/transaction/{account}/transfer', [TransactionController::class, 'transfer']);
 });

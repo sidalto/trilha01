@@ -72,7 +72,7 @@ class CustomerAccount implements CustomerAccountInterface
         return $this->currentBalance;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }

@@ -94,7 +94,7 @@ class Transaction implements TransactionInterface
         }
 
         $account->setCurrentBalance($account->getCurrentBalance() - $amount);
-        $result = $this->accountRepositoryInterface->save($account);
+        $result = $accountRepository->save($account);
 
         if (!$result) {
             throw new Exception('Withdraw error');
@@ -131,10 +131,11 @@ class Transaction implements TransactionInterface
         return $transactionStatus;
     }
 
-    public function transfer(int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
+    public function transfer(int $idCustomer, int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
     {
-        $sourceAccount = $this->accountRepositoryInterface->findOne($idSourceAccount);
-        $destinationAccount = $this->accountRepositoryInterface->findByAccountNumber($destinationAccountNumber);
+        $accountRepository = new CustomerAccountRepository(Connection::getInstance());
+        $sourceAccount = $accountRepository->findOneByCustomer($idSourceAccount, $idCustomer);
+        $destinationAccount = $accountRepository->findByAccountNumber($destinationAccountNumber);
 
         if (!$sourceAccount) {
             throw new Exception('Invalid source account');
@@ -149,27 +150,20 @@ class Transaction implements TransactionInterface
         }
 
         $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
-        $result = $this->accountRepositoryInterface->save($destinationAccount);
+        $result = $accountRepository->save($destinationAccount, $idCustomer);
 
         if (!$result) {
             throw new Exception('Withdraw error');
         }
 
         $sourceAccount->setCurrentBalance($sourceAccount->getCurrentBalance() - $amount);
-        $result = $this->accountRepositoryInterface->save($sourceAccount);
+        $result = $accountRepository->save($sourceAccount, $idCustomer);
 
         if (!$result) {
             throw new Exception('Withdraw error');
         }
 
-        $this->fill($amount, 1, $description, $destinationAccount->getId());
-        $destinationTransaction = $this->transactionRepositoryInterface->save($this);
-
-        $this->fill($amount, 1, $description, $sourceAccount->getId());
-        $sourceTransaction = $this->transactionRepositoryInterface->save($this);
-
-
-        return $destinationTransaction;
+        return $result;
     }
 
     public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool

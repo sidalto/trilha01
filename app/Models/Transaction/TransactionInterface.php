@@ -13,7 +13,7 @@ interface TransactionInterface
 
     public function deposit(int $idAccount, float $amount, string $description = ''): bool;
 
-    public function transfer(int $idSourceAccount, int $idDestinationAccount, float $amount, string $description = ''): bool;
+    public function transfer(int $idCustomer, int $idSourceAccount, int $idDestinationAccount, float $amount, string $description = ''): bool;
 
     public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool;
 }
