@@ -122,24 +122,25 @@ class Transaction implements TransactionInterface
         return $transactionStatus;
     }
 
-    public function deposit(int $idAccount, float $amount, string $description = ''): bool
+    public function deposit(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
         $transactionRepository = new TransactionRepository(Connection::getInstance());
-        $account = $this->transactionRepository->findOne($idAccount);
+        $accountRepository = new CustomerAccountRepository(Connection::getInstance());
+        $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
 
         if (!$account) {
-            throw new Exception('Invalid account');
+            throw new Exception('Conta inválida');
         }
 
         if ($amount <= 0) {
-            throw new Exception('Invalid amount from deposit');
+            throw new Exception('Valor inválido para depósito');
         }
 
         $account->setCurrentBalance($account->getCurrentBalance() + $amount);
-        $result = $transactionRepository->save($account);
+        $result = $accountRepository->save($account, $idCustomer);
 
         if (!$result) {
-            throw new Exception('Deposit error');
+            throw new Exception('Erro ao processar o depósito');
         }
 
         $this->fill($amount, $this->typeTransaction['DEPOSITO'], $description, $account->getId());

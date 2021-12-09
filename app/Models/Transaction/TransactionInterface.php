@@ -11,7 +11,7 @@ interface TransactionInterface
 
     public function withdraw(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool;
 
-    public function deposit(int $idAccount, float $amount, string $description = ''): bool;
+    public function deposit(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool;
 
     public function transfer(int $idCustomer, int $idSourceAccount, int $idDestinationAccount, float $amount, string $description = ''): bool;
 

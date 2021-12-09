@@ -98,4 +98,28 @@ class TransactionController
                 ]);
         }
     }
+
+    public function deposit(int $idAccount)
+    {
+        try {
+            $amount = input('amount');
+            $idCustomer = request()->data['id'];
+            $transaction = new Transaction();
+            $transaction->deposit($idCustomer, $idAccount, $amount);
+
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => []
+                ]);
+        } catch (Exception $e) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ]);
+        }
+    }
 }
