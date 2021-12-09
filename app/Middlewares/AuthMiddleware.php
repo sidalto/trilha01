@@ -2,11 +2,9 @@
 
 namespace App\Middlewares;
 
-use App\Auth\Authenticate;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-
-use function App\Helpers\request;
+use App\Auth\Authenticate;
 use function App\Helpers\response;
 
 class AuthMiddleware implements IMiddleware

@@ -3,7 +3,6 @@
 namespace App\Models\CustomerAccount;
 
 use DateTimeImmutable;
-use Exception;
 use App\Models\CustomerAccount\CustomerAccountInterface;
 
 class CustomerAccount implements CustomerAccountInterface
@@ -86,61 +85,4 @@ class CustomerAccount implements CustomerAccountInterface
     {
         $this->currentBalance = $currentBalance;
     }
-
-    // public function getReport(DateTimeImmutable $initialData, DateTimeImmutable $finalData): array
-    // {
-    //     if ($initialData > $finalData) {
-    //         throw new Exception('Invalid date interval');
-    //     }
-
-    //     $accountReport = $this->accountRepositoryInterface->getAccountReport($initialData, $finalData);
-
-    //     return $accountReport;
-    // }
-
-    // public function withdraw(float $amount): bool
-    // {
-    //     if ($this->getCurrentBalance() <= 0 || $this->getCurrentBalance() < $amount) {
-    //         throw new Exception('Insufficient founds');
-    //     }
-
-    //     $this->setCurrentBalance($this->getCurrentBalance() - $amount);
-
-    //     return true;
-    // }
-
-    // public function deposit(float $amount): bool
-    // {
-    //     if ($amount <= 0) {
-    //         throw new Exception('Invalid amount from deposit');
-    //     }
-
-    //     $this->setCurrentBalance($this->getCurrentBalance() + $amount);
-
-    //     return true;
-    // }
-
-    // public function transfer(CustomerAccountInterface $destinationAccount, float $amount): bool
-    // {
-    //     $destinationAccount = $this->verifyAccount($destinationAccount);
-
-    //     if (!$amount > 0) {
-    //         throw new Exception('Invalid amount from transfer');
-    //     }
-
-    //     if (!$destinationAccount) {
-    //         throw new Exception('Invalid destination account from transfer');
-    //     }
-
-    //     $destinationAccount->setCurrentBalance($destinationAccount->getCurrentBalance() + $amount);
-
-    //     $this->setCurrentBalance($this->getCurrentBalance() - $amount);
-
-    //     return true;
-    // }
-
-    // public function verifyAccount(CustomerAccountInterface $account): ?CustomerAccountInterface
-    // {
-    //     return $this->accountRepositoryInterface->getById($account);
-    // }
 }

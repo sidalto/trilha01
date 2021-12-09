@@ -10,15 +10,6 @@ use Pecee\Http\Request;
 /**
  * Get url for a route by using either name/alias, class or method name.
  *
- * The name parameter supports the following values:
- * - Route name
- * - Controller/resource name (with or without method)
- * - Controller class name
- *
- * When searching for controller/resource by name, you can use this syntax "route.name@method".
- * You can also use the same syntax when searching for a specific controller-class "MyController@home".
- * If no arguments is specified, it will return the url for the current loaded route.
- *
  * @param string|null $name
  * @param string|array|null $parameters
  * @param array|null $getParams
@@ -48,6 +39,7 @@ function request(): Request
 
 /**
  * Get input class
+ * 
  * @param string|null $index Parameter index name
  * @param string|mixed|null $defaultValue Default return value
  * @param array ...$methods Default methods
@@ -77,6 +69,7 @@ function redirect(string $url, ?int $code = null): void
 
 /**
  * Get current csrf-token
+ * 
  * @return string|null
  */
 function csrf_token(): ?string

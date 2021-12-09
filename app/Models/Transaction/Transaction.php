@@ -58,7 +58,7 @@ class Transaction implements TransactionInterface
         return $this->amount;
     }
 
-    public function setAmount(floatl $amount): void
+    public function setAmount(float $amount): void
     {
         $this->amount = $amount;
     }
@@ -191,23 +191,30 @@ class Transaction implements TransactionInterface
         return $result;
     }
 
-    public function payment(CustomerAccountInterface $account, float $amount, string $description = ''): bool
+    public function payment(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
-        if (!$amount > 0) {
-            throw new Exception('Invalid amount from payment');
+        $transactionRepository = new TransactionRepository(Connection::getInstance());
+        $accountRepository = new CustomerAccountRepository(Connection::getInstance());
+        $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
+
+        if (!$account) {
+            throw new Exception('Conta inválida');
         }
 
-        if ($this->account->getCurrentBalance() < $amount) {
-            throw new Exception('Insufficient founds');
+        if ($account->getCurrentBalance() <= 0 || $account->getCurrentBalance() < $amount) {
+            throw new Exception('Saldo insuficiente');
         }
 
-        $this->account->setCurrentBalance($this->account->getCurrentBalance() - $amount);
+        $account->setCurrentBalance($account->getCurrentBalance() - $amount);
+        $result = $accountRepository->save($account, $idCustomer);
 
-        return true;
-    }
+        if (!$result) {
+            throw new Exception('Erro ao processar o pagamento');
+        }
 
-    public function verifyAccount(CustomerAccountInterface $account): ?CustomerAccountInterface
-    {
-        return $this->accountRepositoryInterface->getById($account);
+        $this->fill($amount, $this->typeTransaction['PAGAMENTO'], $description, $account->getId());
+        $transactionStatus = $transactionRepository->save($this);
+
+        return $transactionStatus;
     }
 }

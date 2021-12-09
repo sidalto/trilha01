@@ -4,11 +4,11 @@ namespace App\Repositories\TransactionRepository;
 
 use PDO;
 use Exception;
+use PDOException;
 use PDOStatement;
 use DateTimeImmutable;
 use App\Models\Transaction\Transaction;
 use App\Models\Customer\CustomerInterface;
-use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\Traits\PrepareDatabaseSql;
 use App\Models\Transaction\TransactionInterface;
 use App\Models\CustomerAccount\CustomerAccountInterface;
@@ -25,7 +25,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     /**
      *
      * @param PDO $connection
-     * @param CustomerInterface $customer
      */
     public function __construct(PDO $connection)
     {
@@ -60,14 +59,14 @@ class TransactionRepository implements TransactionRepositoryInterface
             }
 
             return $transactionList;
-        } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+        } catch (PDOException $e) {
+            throw new PDOException($e);
         }
     }
 
     /**
      *
+     * @param int $idAccount
      * @return array
      */
     public function findAllByAccount(int $idAccount): array
@@ -80,16 +79,16 @@ class TransactionRepository implements TransactionRepositoryInterface
             $stmt = $this->prepareBind($sql, $params);
 
             return $this->fillTransaction($stmt);
-        } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
-            // throw new Exception($e->getMessage());
+        } catch (PDOException $e) {
+            throw new PDOException($e);
         }
     }
 
     /**
      *
-     * @param int $idCustomer
      * @param int $idAccount
+     * @param string $initialDate
+     * @param string $finalDate
      * @return array
      */
     public function findAllByDateInterval(int $idAccount, string $initialDate, string $finalDate): array
@@ -108,45 +107,41 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             $stmt = $this->prepareBind($sql, $params);
             $stmt->execute();
-
-            // if (!count($this->fillTransaction($stmt)) > 0) {
-            //     return null;
-            // }
-
             $transactions = $this->fillTransaction($stmt);
 
             return $transactions;
-        } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
-            // throw new Exception($e->getMessage());
+        } catch (PDOException $e) {
+            throw new PDOException($e);
         }
     }
 
     /**
      *
-     * @param TransactionInterface $account
-     * @param int $idAccount
+     * @param TransactionInterface $transaction
      * @return bool
      */
     public function save(TransactionInterface $transaction): bool
     {
-        if (!$transaction->getId()) {
-            return $this->insert($transaction, $transaction->getAccountId());
-        }
+        try {
+            if (!$transaction->getId()) {
+                return $this->insert($transaction, $transaction->getAccountId());
+            }
 
-        return $this->update($transaction);
+            return $this->update($transaction);
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
     }
 
     /**
      *            
-     * @param CustomerAccountInterface $account
+     * @param TransactionInterface $transaction
+     * @param int $idAccount
      * @return bool
      */
     private function insert(TransactionInterface $transaction, int $idAccount): bool
     {
         try {
-            // var_dump($transaction, $idAccount);
-
             $sql = "INSERT INTO transactions (amount, description, type, account_id) VALUES (:amount, :description, :type, :account_id)";
 
             $params = [
@@ -165,20 +160,18 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $result;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            throw new Exception("Not possible save the customer");
+            throw new Exception("Erro ao salvar a transação");
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
+     * @param TransactionInterface $transaction
      * @return bool
      */
     private function update(TransactionInterface $transaction): bool
     {
         try {
-
             $sql = "UPDATE transactions SET company_name = :company_name, cnpj = :cnpj, state_registration = :state_registration, foundation_date = :foundation_date,  address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id";
 
             $params = [
@@ -197,14 +190,13 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $stmt->execute();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            throw new Exception("Not possible update the customer");
+            throw new Exception("Erro ao atualizar a transação");
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
+     * @param TransactionInterface $transaction
      * @return bool
      */
     public function remove(TransactionInterface $transaction): bool
@@ -217,7 +209,7 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $stmt->execute();
         } catch (Exception $e) {
-            throw new Exception("Not possible delete the customer");
+            throw new Exception("Erro ao remover a transação");
         }
     }
 }

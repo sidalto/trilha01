@@ -2,8 +2,8 @@
 
 namespace App\Auth;
 
-use Exception;
 use Firebase\JWT\JWT;
+use Exception;
 use App\Database\Connection;
 use App\Models\Customer\CustomerPerson;
 use App\Models\Customer\CustomerCompany;
@@ -30,62 +30,58 @@ class Authenticate
 
     public function generateToken(CustomerInterface $customer)
     {
-        $payload = [
-            'id' => $customer->getId(),
-            'email' => $customer->getEmail()
-        ];
+        try {
+            $payload = [
+                'id' => $customer->getId(),
+                'email' => $customer->getEmail()
+            ];
+            $token = JWT::encode($payload, self::KEY);
 
-        $token = JWT::encode($payload, self::KEY);
-
-        return ['token' => $token];
+            return ['token' => $token];
+        } catch (Exception $e) {
+            throw new Exception('Erro ao processar o token');
+        }
     }
 
     public function authenticate(string $email, string $password)
     {
-        if (!isset($email) || !isset($password)) {
+        try {
+            if (!isset($email) || !isset($password)) {
+                throw new Exception("Email e senha são obrigatórios");
+            }
+
+            $this->customer = $this->customerRepository->findByEmail($email);
+            $this->company = $this->companyRepository->findByEmail($email);
+
+            if (!$this->customer && !$this->company) {
+                throw new Exception("Cliente não localizado");
+            } elseif ($this->customer) {
+                $customer = $this->customer;
+            } else {
+                $customer = $this->company;
+            }
+
+            if (!password_verify($password, $customer->getPassword())) {
+                throw new Exception("Email ou senha inválidos");
+            }
+
+            return $this->generateToken($this->customer);
+        } catch (Exception $e) {
             response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'User and password required'
+                    'message' => $e->getMessage()
                 ]);
         }
-
-        $this->customer = $this->customerRepository->findByEmail($email);
-        $this->company = $this->companyRepository->findByEmail($email);
-
-        if (!$this->customer && !$this->company) {
-            response()
-                ->httpCode(400)
-                ->json([
-                    'message' => 'User or password invalid'
-                ]);
-        } elseif ($this->customer) {
-            $customer = $this->customer;
-        } else {
-            $customer = $this->company;
-        }
-
-        if (!password_verify($password, $customer->getPassword())) {
-            response()
-                ->httpCode(400)
-                ->json([
-                    'message' => 'User or password invalid'
-                ]);
-        }
-
-        return $this->generateToken($this->customer);
     }
 
     public function verifyAuth()
     {
-        $token = getallheaders();
         try {
+            $token = getallheaders();
+
             if (!isset($token['Authorization'])) {
-                response()
-                    ->httpCode(400)
-                    ->json([
-                        'message' => 'Access token not found'
-                    ]);
+                throw new Exception("Token de acesso não localizado");
             }
 
             $token = str_replace('Bearer ', '', $token['Authorization']);
@@ -96,11 +92,7 @@ class Authenticate
             $this->company = $this->companyRepository->findByEmail($email);
 
             if (!$this->customer && !$this->company) {
-                response()
-                    ->httpCode(400)
-                    ->json([
-                        'message' => 'Invalid access token'
-                    ]);
+                throw new Exception("Token de acesso inválido");
             }
 
             if ($this->customer) {
@@ -121,7 +113,7 @@ class Authenticate
             response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Invalid access token'
+                    'message' => $e->getMessage()
                 ]);
         }
     }

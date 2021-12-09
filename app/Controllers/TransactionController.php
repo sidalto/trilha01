@@ -2,13 +2,12 @@
 
 namespace App\Controllers;
 
+use Exception;
 use App\Database\Connection;
 use App\Models\Transaction\Transaction;
 use App\Repositories\TransactionRepository\TransactionRepository;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\TransactionRepository\TransactionRepositoryInterface;
-use Exception;
-
 use function App\Helpers\input;
 use function App\Helpers\request;
 use function App\Helpers\response;
@@ -106,6 +105,31 @@ class TransactionController
             $idCustomer = request()->data['id'];
             $transaction = new Transaction();
             $transaction->deposit($idCustomer, $idAccount, $amount);
+
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => []
+                ]);
+        } catch (Exception $e) {
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ]);
+        }
+    }
+
+    public function payment(int $idAccount)
+    {
+        try {
+            $amount = input('amount');
+            $description = input('amount');
+            $idCustomer = request()->data['id'];
+            $transaction = new Transaction();
+            $transaction->payment($idCustomer, $idAccount, $amount, $description);
 
             return response()
                 ->httpCode(200)
