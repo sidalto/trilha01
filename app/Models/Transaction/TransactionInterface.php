@@ -2,9 +2,6 @@
 
 namespace App\Models\Transaction;
 
-use DateTimeImmutable;
-use App\Models\CustomerAccount\CustomerAccountInterface;
-
 interface TransactionInterface
 {
     public function getReportByPeriod(int $account, string $initialData, string $finalData): array;

@@ -54,7 +54,7 @@ class Connection
 
                 return self::$instance;
             } catch (PDOException $e) {
-                throw new PDOException($e);
+                throw new PDOException("Erro ao conectar ao banco de dados");
             }
         }
 

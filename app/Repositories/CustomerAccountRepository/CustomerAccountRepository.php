@@ -2,7 +2,6 @@
 
 namespace App\Repositories\CustomerAccountRepository;
 
-use App\Models\Customer\CustomerInterface;
 use PDO;
 use Exception;
 use PDOStatement;
@@ -19,9 +18,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     private CustomerAccountInterface $account;
 
     /**
-     *
      * @param PDO $connection
-     * @param CustomerInterface $customer
      */
     public function __construct(PDO $connection)
     {
@@ -56,9 +53,8 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             }
 
             return $accountList;
-        } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+        } catch (PDOStatement $e) {
+            throw new PDOStatement($e);
         }
     }
 
@@ -76,8 +72,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
             return $this->fillAccount($stmt);
         } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+            throw new Exception("Não foi possível realizar a busca");
         }
     }
 
@@ -85,7 +80,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
      *
      * @param int $idAccount
      * @param int $idCustomer
-     * @return CustomerAccountInterface
+     * @return CustomerAccountInterface|null
      */
     public function findOneByCustomer(int $idAccount, int $idCustomer): ?CustomerAccountInterface
     {
@@ -108,14 +103,14 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
             return array_shift($account);
         } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
+            throw new Exception("Não foi possível realizar a busca");
         }
     }
 
     /**
      *
      * @param int $accountNumber
-     * @return CustomerAccountInterface
+     * @return CustomerAccountInterface|null
      */
     public function findByAccountNumber(int $accountNumber): ?CustomerAccountInterface
     {
@@ -128,33 +123,38 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
             $stmt->execute();
 
             if (!count($this->fillAccount($stmt)) > 0) {
-                throw new Exception("Account not found");
+                return null;
             }
 
             $customer = $this->fillAccount($stmt);
             return array_shift($customer);
         } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
+            throw new Exception("Não foi possível realizar a consulta");
         }
     }
 
     /**
      *
      * @param CustomerAccountInterface $account
-     * @return bool
+     * @return int|null
      */
     public function save(CustomerAccountInterface $account, int $idCustomer): ?int
     {
-        if (!$account->getId()) {
-            return $this->insert($account, $idCustomer);
-        }
+        try {
+            if (!$account->getId()) {
+                return $this->insert($account, $idCustomer);
+            }
 
-        return $this->update($account);
+            return $this->update($account);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     /**
      *            
      * @param CustomerAccountInterface $account
+     * @param string $customerId
      * @return int|null
      */
     private function insert(CustomerAccountInterface $account, string $customerId): ?int
@@ -179,20 +179,18 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
             return $account->getId();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            throw new Exception("Not possible save the customer");
+            throw new Exception("Não foi possivel salvar a conta");
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
+     * @param CustomerAccountInterface $account
      * @return int|null
      */
     private function update(CustomerAccountInterface $account): ?int
     {
         try {
-
             $sql = "UPDATE customers_accounts SET current_balance = :current_balance, description = :description, type = :type WHERE id = :id";
 
             $params = [
@@ -211,14 +209,13 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
             return $result;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            throw new Exception("Not possible update the customer");
+            throw new Exception("Não foi possível atualizar a conta");
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
+     * @param CustomerAccountInterface $account
      * @return bool
      */
     public function remove(CustomerAccountInterface $account): bool
@@ -231,7 +228,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
 
             return $stmt->execute();
         } catch (Exception $e) {
-            throw new Exception("Not possible delete the customer");
+            throw new Exception("Não foi possível excluir a conta");
         }
     }
 }

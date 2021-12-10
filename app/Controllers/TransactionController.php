@@ -24,29 +24,24 @@ class TransactionController
 
     public function index(int $idAccount)
     {
-        $idCustomer = request()->data['id'];
-        $result = $this->accountRepository->findOneByCustomer(input('idAccount'), $idCustomer);
+        try {
+            $idCustomer = request()->data['id'];
+            $result = $this->accountRepository->findOneByCustomer(input('idAccount'), $idCustomer);
 
-        if (!$result) {
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => $result
+                ]);
+        } catch (Exception $e) {
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => $e->getMessage(),
                     'data' => []
                 ]);
         }
-
-        return response()
-            ->httpCode(200)
-            ->json([
-                'message' => 'Success',
-                'data' => $result
-            ]);
-    }
-
-    public function getReport(int $idAccount, string $initialDate, string $finalDate)
-    {
-        var_dump($this->transactionRepository->findAllByDateInterval($idAccount, $initialDate, $finalDate));
     }
 
     public function withdraw(int $idAccount)
@@ -68,7 +63,6 @@ class TransactionController
                 ->httpCode(400)
                 ->json([
                     'message' => $e->getMessage(),
-                    'data' => []
                 ]);
         }
     }
@@ -117,7 +111,6 @@ class TransactionController
                 ->httpCode(400)
                 ->json([
                     'message' => $e->getMessage(),
-                    'data' => []
                 ]);
         }
     }
@@ -142,7 +135,6 @@ class TransactionController
                 ->httpCode(400)
                 ->json([
                     'message' => $e->getMessage(),
-                    'data' => []
                 ]);
         }
     }

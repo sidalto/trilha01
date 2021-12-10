@@ -37,9 +37,17 @@ class Authenticate
             ];
             $token = JWT::encode($payload, self::KEY);
 
+            if (!$token) {
+                throw new Exception("Erro ao gerar o token de acesso");
+            }
+
             return ['token' => $token];
         } catch (Exception $e) {
-            throw new Exception('Erro ao processar o token');
+            response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage()
+                ]);
         }
     }
 
@@ -54,7 +62,7 @@ class Authenticate
             $this->company = $this->companyRepository->findByEmail($email);
 
             if (!$this->customer && !$this->company) {
-                throw new Exception("Cliente não localizado");
+                throw new Exception("Cliente inexistente, por favor cadastre-se");
             } elseif ($this->customer) {
                 $customer = $this->customer;
             } else {
@@ -81,13 +89,12 @@ class Authenticate
             $token = getallheaders();
 
             if (!isset($token['Authorization'])) {
-                throw new Exception("Token de acesso não localizado");
+                throw new Exception("Token de acesso não informado");
             }
 
             $token = str_replace('Bearer ', '', $token['Authorization']);
             $decode = (array)JWT::decode($token, self::KEY, ['HS256']);
             $email = $decode['email'];
-
             $this->customer = $this->customerRepository->findByEmail($email);
             $this->company = $this->companyRepository->findByEmail($email);
 
@@ -113,7 +120,7 @@ class Authenticate
             response()
                 ->httpCode(400)
                 ->json([
-                    'message' => $e->getMessage()
+                    'message' => 'Token inválido'
                 ]);
         }
     }

@@ -62,7 +62,6 @@ class HomeController
                 ->httpCode(400)
                 ->json([
                     'message' => $e->getMessage(),
-                    'data' => []
                 ]);
         }
     }
@@ -76,7 +75,11 @@ class HomeController
 
             return $result;
         } catch (Exception $e) {
-            throw new Exception($e);
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -92,20 +95,28 @@ class HomeController
 
             return $transactions;
         } catch (Exception $e) {
-            throw new Exception($e);
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
     public function verifyEmail(string $email)
     {
         try {
-            $this->customer = $this->customerRepository->findByEmail($email);
-            $this->company = $this->companyRepository->findByEmail($email);
-            $customer = $this->customer ?: $this->company;
+            $customer = $this->customerRepository->findByEmail($email);
+            $company = $this->companyRepository->findByEmail($email);
+            $customer = $customer ?: $company;
 
             return $customer;
         } catch (Exception $e) {
-            throw new Exception($e);
+            return response()
+                ->httpCode(400)
+                ->json([
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 }

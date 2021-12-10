@@ -2,8 +2,6 @@
 
 namespace App\Repositories\CustomerAccountRepository;
 
-use DateTimeImmutable;
-use App\Models\Customer\CustomerInterface;
 use App\Models\CustomerAccount\CustomerAccountInterface;
 
 interface CustomerAccountRepositoryInterface

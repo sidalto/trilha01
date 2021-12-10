@@ -23,7 +23,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     private CustomerInterface $customer;
 
     /**
-     *
      * @param PDO $connection
      */
     public function __construct(PDO $connection)
@@ -80,7 +79,7 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $this->fillTransaction($stmt);
         } catch (PDOException $e) {
-            throw new PDOException($e);
+            throw new PDOException('Erro ao emitir o extrato');
         }
     }
 
@@ -111,7 +110,7 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $transactions;
         } catch (PDOException $e) {
-            throw new PDOException($e);
+            throw new PDOException('Erro ao emitir o extrato');
         }
     }
 
@@ -129,7 +128,7 @@ class TransactionRepository implements TransactionRepositoryInterface
 
             return $this->update($transaction);
         } catch (Exception $e) {
-            throw new Exception($e);
+            throw $e;
         }
     }
 

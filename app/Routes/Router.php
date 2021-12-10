@@ -2,11 +2,12 @@
 
 namespace App\Routes;
 
+use Exception;
+use DomainException;
 use Pecee\SimpleRouter\SimpleRouter;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
-use Exception;
 
 class Router extends SimpleRouter
 {
@@ -23,13 +24,13 @@ class Router extends SimpleRouter
             require_once 'routes.php';
             parent::start();
         } catch (TokenMismatchException $e) {
-            throw new Exception('Erro ao localizar o token');
+            throw new TokenMismatchException('Erro ao localizar o token');
         } catch (HttpException $e) {
-            throw new HttpException('Erro ao processar a requisição');
+            throw new HttpException('Endereço inválido');
         } catch (NotFoundHttpException $e) {
-            throw new HttpException('Endereço não encontrado');
-        } finally {
-            throw new Exception('Erro interno do serviço');
+            throw new NotFoundHttpException('Endereço não encontrado');
+        } catch (Exception $e) {
+            throw new Exception('Token Inválido');
         }
     }
 }
