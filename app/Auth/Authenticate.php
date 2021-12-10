@@ -75,11 +75,12 @@ class Authenticate
 
             return $this->generateToken($this->customer);
         } catch (Exception $e) {
-            response()
-                ->httpCode(400)
-                ->json([
-                    'message' => $e->getMessage()
-                ]);
+            throw $e;
+            // response()
+            //     ->httpCode(400)
+            //     ->json([
+            //         'message' => $e->getMessage()
+            //     ]);
         }
     }
 
