@@ -2,32 +2,35 @@
 
 namespace App\Repositories\Traits;
 
-use RuntimeException;
 use PDO;
-use PDOException;
 use PDOStatement;
+use PDOException;
 
 trait PrepareDatabaseSql
 {
-  protected static PDO $connection;
+    protected static PDO $connection;
 
-  public function prepareBind(string $query, array $params = []): PDOStatement
-  {
-    $stmt = self::$connection->prepare($query);
+    public function prepareBind(string $query, array $params = []): PDOStatement
+    {
+        try {
+            $stmt = self::$connection->prepare($query);
 
-    foreach ($params as $column => $value) {
-      $stmt->bindValue($column, $value);
+            foreach ($params as $column => $value) {
+                $stmt->bindValue($column, $value);
+            }
+
+            return $stmt;
+        } catch (PDOException $e) {
+            throw new PDOException($e);
+        }
     }
 
-    return $stmt;
-  }
-
-  public function getInsertId(): string
-  {
-    try {
-      return self::$connection->lastInsertId();
-    } catch (PDOException $e) {
-      throw new RunTimeException($e->getMessage());
+    public function getInsertId(): string
+    {
+        try {
+            return self::$connection->lastInsertId();
+        } catch (PDOException $e) {
+            throw new PDOException($e);
+        }
     }
-  }
 }

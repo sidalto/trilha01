@@ -14,7 +14,7 @@ class CustomerPerson implements CustomerInterface
     private $customerAccounts = [];
     private string $address;
     private string $telephone;
-    private DateTimeImmutable $created_at;
+    private ?DateTimeImmutable $created_at;
     private string $email;
     private string $password;
     private int $id;
@@ -41,10 +41,10 @@ class CustomerPerson implements CustomerInterface
         $this->telephone = $telephone;
         $this->email = $email;
         $this->password = $password;
-        $this->companyName = $personName;
-        $this->cnpj = $cpf;
+        $this->personName = $personName;
+        $this->cpf = $cpf;
         $this->rg = $rg;
-        $this->foundationDate = $birthDate;
+        $this->birthDate = $birthDate;
         $this->id = $id;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;

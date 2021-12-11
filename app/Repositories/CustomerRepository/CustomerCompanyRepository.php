@@ -4,13 +4,14 @@ namespace App\Repositories\CustomerRepository;
 
 use PDO;
 use Exception;
+use PDOException;
 use PDOStatement;
 use DateTimeImmutable;
-use App\Models\Customer\CustomerInterface;
 use App\Models\Customer\CustomerCompany;
+use App\Models\Customer\CustomerInterface;
 use App\Models\CustomerAccount\CustomerAccount;
-use App\Models\CustomerAccount\CustomerAccountInterface;
 use App\Repositories\Traits\PrepareDatabaseSql;
+use App\Models\CustomerAccount\CustomerAccountInterface;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 
 class CustomerCompanyRepository implements CustomerRepositoryInterface
@@ -21,9 +22,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     private CustomerAccountInterface $account;
 
     /**
-     *
      * @param PDO $connection
-     * @param CustomerInterface $customer
      */
     public function __construct(PDO $connection)
     {
@@ -62,13 +61,13 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
                 $account = new CustomerAccount();
                 $account->fill(
-                    $customerData['ac_id'],
                     $customerData['current_balance'],
                     $customerData['type'],
-                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['description'],
+                    $customerData['number'],
+                    $customerData['ac_id'],
+                    new DateTimeImmutable($customerData['ac_created_at']),
                     $customerData['ac_updated_at'] ? new DateTimeImmutable($customerData['updated_at']) : NULL,
-                    $customerData['number']
                 );
 
                 $customersList[$customer->getId()] = $customer;
@@ -76,14 +75,12 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
             }
 
             return $customersList;
-        } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+        } catch (PDOException $e) {
+            throw new PDOException($e);
         }
     }
 
     /**
-     *
      * @return array
      */
     public function findAll(): array
@@ -95,17 +92,16 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
             return $this->fillCustomer($stmt);
         } catch (Exception $e) {
-            // throw new Exception("Not possible execute the query");
-            throw new Exception($e->getMessage());
+            throw new Exception('Não foi possível realizar a busca');
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
-     * @return CustomerInterface
+     * @param int $id
+     * @return CustomerInterface|null
      */
-    public function findOne(string $id): ?CustomerInterface
+    public function findOne(int $id): ?CustomerInterface
     {
         try {
             $sql = "SELECT c.id, c.company_name, c.cnpj, c.state_registration, c.foundation_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.id = :id";
@@ -122,43 +118,72 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
             return array_shift($customer);
         } catch (Exception $e) {
-            throw new Exception("Not possible execute the query");
+            throw new Exception("Não foi possível realizar a busca");
+        }
+    }
+
+    /**
+     * @param string $email
+     * @return CustomerInterface|null
+     */
+    public function findByEmail(string $email): ?CustomerInterface
+    {
+        try {
+            $sql = "SELECT c.id, c.person_name, c.cpf, c.rg, c.birth_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.email = :email";
+
+            $params = ['email' => $email];
+            $stmt = $this->prepareBind($sql, $params);
+            $stmt->execute();
+
+            if (!count($this->fillCustomer($stmt)) > 0) {
+                return null;
+            }
+
+            $customer = $this->fillCustomer($stmt);
+
+            return array_shift($customer);
+        } catch (Exception $e) {
+            throw new Exception("Não foi possível realizar a busca");
         }
     }
 
     /**
      *
      * @param CustomerInterface $customer
-     * @return bool
+     * @return int|null
      */
-    public function save(CustomerInterface $customer): bool
+    public function save(CustomerInterface $customer): ?int
     {
-        if ($customer->getId()) {
-            return $this->update($customer);
-        }
+        try {
+            if (!$customer->getId()) {
+                return $this->insert($customer);
+            }
 
-        return $this->insert($customer);
+            return $this->update($customer);
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     /**
      *            
-     * @param CustomerInterface $customer
-     * @return bool
+     * @param CustomerInterface $company
+     * @return int|null
      */
-    private function insert(CustomerInterface $customer): bool
+    private function insert(CustomerInterface $company): ?int
     {
         try {
             $sql = "INSERT INTO customers (company_name, cnpj, state_registration, foundation_date, address, telephone, email, password, is_company) VALUES (:company_name, :cnpj, :state_registration, :foundation_date, :address, :telephone, :email, :password, :is_company);";
 
             $params = [
-                'company_name' => $customer->getCompanyName(),
-                'cnpj' => $customer->getCnpj(),
-                'state_registration' => $customer->getStateRegistration(),
-                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
-                'address' => $customer->getAddress(),
-                'telephone' => $customer->getTelephone(),
-                'email' => $customer->getEmail(),
-                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
+                'company_name' => $company->getCompanyName(),
+                'cnpj' => $company->getCnpj(),
+                'state_registration' => $company->getStateRegistration(),
+                'foundation_date' => $company->getFoundationDate()->format('Y-m-d'),
+                'address' => $company->getAddress(),
+                'telephone' => $company->getTelephone(),
+                'email' => $company->getEmail(),
+                'password' => password_hash($company->getPassword(), PASSWORD_DEFAULT),
                 'is_company' => 1,
             ];
 
@@ -166,45 +191,47 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
             $result = $stmt->execute();
 
             if ($result) {
-                $customer->setId($this->getInsertId());
+                $company->setId($this->getInsertId());
             }
 
-            return $result;
+            return $company->getId();
         } catch (Exception $e) {
-            // throw new Exception($e->getMessage());
-            throw new Exception("Not possible save the customer");
+            throw new Exception("Não foi possível inserir o cliente");
         }
     }
 
     /**
      *
-     * @param CustomerInterface $customer
-     * @return bool
+     * @param CustomerInterface $company
+     * @return int|null
      */
-    private function update(CustomerInterface $customer): bool
+    private function update(CustomerInterface $company): ?int
     {
         try {
-
             $sql = "UPDATE customers SET company_name = :company_name, cnpj = :cnpj, state_registration = :state_registration, foundation_date = :foundation_date,  address = :address, telephone = :telephone, email = :email, password = :password WHERE id = :id";
 
             $params = [
-                'company_name' => $customer->getCompanyName(),
-                'cnpj' => $customer->getCnpj(),
-                'state_registration' => $customer->getStateRegistration(),
-                'foundation_date' => $customer->getFoundationDate()->format('Y-m-d'),
-                'address' => $customer->getAddress(),
-                'telephone' => $customer->getTelephone(),
-                'email' => $customer->getEmail(),
-                'password' => password_hash($customer->getPassword(), PASSWORD_DEFAULT),
-                'id' => $customer->getId()
+                'company_name' => $company->getCompanyName(),
+                'cnpj' => $company->getCnpj(),
+                'state_registration' => $company->getStateRegistration(),
+                'foundation_date' => $company->getFoundationDate()->format('Y-m-d'),
+                'address' => $company->getAddress(),
+                'telephone' => $company->getTelephone(),
+                'email' => $company->getEmail(),
+                'password' => password_hash($company->getPassword(), PASSWORD_DEFAULT),
+                'id' => $company->getId()
             ];
 
             $stmt = $this->prepareBind($sql, $params);
+            $result = $stmt->execute();
 
-            return $stmt->execute();
+            if (!$result) {
+                return false;
+            }
+
+            return $company->getId();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-            throw new Exception("Not possible update the customer");
+            throw new Exception("Não foi possível atualizar o cliente");
         }
     }
 
@@ -223,7 +250,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
 
             return $stmt->execute();
         } catch (Exception $e) {
-            throw new Exception("Not possible delete the customer");
+            throw new Exception("Erro ao excluir o cliente");
         }
     }
 }

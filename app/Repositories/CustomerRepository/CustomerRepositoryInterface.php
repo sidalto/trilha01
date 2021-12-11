@@ -8,9 +8,11 @@ interface CustomerRepositoryInterface
 {
     public function findAll(): array;
 
-    public function findOne(string $number): ?CustomerInterface;
+    public function findOne(int $id): ?CustomerInterface;
 
-    public function save(CustomerInterface $customer): bool;
+    public function findByEmail(string $email): ?CustomerInterface;
+
+    public function save(CustomerInterface $customer): ?int;
 
     public function remove(CustomerInterface $customer): bool;
 }
