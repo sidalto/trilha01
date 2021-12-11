@@ -75,11 +75,6 @@ class Authenticate
             return $this->generateToken($user);
         } catch (Exception $e) {
             throw $e;
-            // response()
-            //     ->httpCode(400)
-            //     ->json([
-            //         'message' => $e->getMessage()
-            //     ]);
         }
     }
 

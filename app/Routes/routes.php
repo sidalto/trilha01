@@ -11,13 +11,11 @@ use App\Controllers\TransactionController;
 use App\Controllers\AuthenticateController;
 use App\Middlewares\AuthMiddleware;
 
-// Rotas sem autenticação
 SimpleRouter::post('/trilha01/auth', [AuthenticateController::class, 'index']);
 SimpleRouter::get('/trilha01/logout', [AuthenticateController::class, 'logout']);
 SimpleRouter::post('/trilha01/customer', [CustomerController::class, 'create']);
 SimpleRouter::post('/trilha01/company', [CompanyController::class, 'create']);
 
-// Rotas que exigem autenticação
 SimpleRouter::group(['middleware' => AuthMiddleware::class], function () {
     SimpleRouter::get('/trilha01/dashboard', [HomeController::class, 'index']);
 
