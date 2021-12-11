@@ -1,4 +1,0 @@
-[2021-12-10T23:20:34.034054+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/auth/ [] []
-[2021-12-10T23:20:34.048175+00:00] wjcrypto-log.INFO: Falha no Login efetuado pelo usuário: ze@zeruela.com [] []
-[2021-12-10T23:55:06.384333+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/company/141/ [] []
-[2021-12-10T23:55:06.393128+00:00] wjcrypto-log.NOTICE: Endereço inválido [] []

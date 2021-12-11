@@ -129,7 +129,7 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     public function findByEmail(string $email): ?CustomerInterface
     {
         try {
-            $sql = "SELECT c.id, c.person_name, c.cpf, c.rg, c.birth_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.email = :email";
+            $sql = "SELECT c.id, c.company_name, c.cnpj, c.state_registration, c.foundation_date, c.address, c.telephone, c.email, c.created_at, c.updated_at, c.password, c.is_company, ca.id as ac_id, ca.type, ca.description, ca.number, ca.current_balance, ca.created_at as ac_created_at, ca.updated_at as ac_updated_at FROM customers as c JOIN customers_accounts as ca ON (c.id = ca.customers_id) WHERE c.is_company AND ca.customers_id = c.id AND c.email = :email";
 
             $params = ['email' => $email];
             $stmt = $this->prepareBind($sql, $params);

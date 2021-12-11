@@ -57,23 +57,22 @@ class Authenticate
             if (!isset($email) || !isset($password)) {
                 throw new Exception("Email e senha são obrigatórios");
             }
-
             $this->customer = $this->customerRepository->findByEmail($email);
             $this->company = $this->companyRepository->findByEmail($email);
 
             if (!$this->customer && !$this->company) {
                 throw new Exception("Cliente inexistente, por favor cadastre-se");
             } elseif ($this->customer) {
-                $customer = $this->customer;
+                $user = $this->customer;
             } else {
-                $customer = $this->company;
+                $user = $this->company;
             }
 
-            if (!password_verify($password, $customer->getPassword())) {
+            if (!password_verify($password, $user->getPassword())) {
                 throw new Exception("Email ou senha inválidos");
             }
 
-            return $this->generateToken($this->customer);
+            return $this->generateToken($user);
         } catch (Exception $e) {
             throw $e;
             // response()

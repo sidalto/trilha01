@@ -7,8 +7,9 @@ use DateInterval;
 use DateTimeImmutable;
 use App\Database\Connection;
 use App\Models\Transaction\Transaction;
-use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use App\Repositories\CustomerRepository\CustomerPersonRepository;
+use App\Repositories\CustomerRepository\CustomerCompanyRepository;
+use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
 use function App\Helpers\request;
 use function App\Helpers\response;
 
@@ -17,7 +18,7 @@ class HomeController
     public function __construct()
     {
         $this->customerRepository = new CustomerPersonRepository(Connection::getInstance());
-        $this->companyRepository = new CustomerPersonRepository(Connection::getInstance());
+        $this->companyRepository = new CustomerCompanyRepository(Connection::getInstance());
         $this->accountRepository = new CustomerAccountRepository(Connection::getInstance());
         $this->transaction = new Transaction();
     }
