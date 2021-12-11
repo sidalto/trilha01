@@ -4,17 +4,9 @@ namespace App\Models\CustomerAccount;
 
 interface CustomerAccountInterface
 {
-    public function openAccount(): bool;
+    public function getCurrentBalance(): float;
 
-    public function finishAccount(): bool;
+    public function setCurrentBalance(float $currentBalance): void;
 
-    public function getCurrentBalance(): double;
-
-    public function getAccountReport(): array;
-
-    public function withdraw(double $amount): bool;
-
-    public function deposit(double $amount): bool;
-
-    public function transfer(int $sourceAccountId, int $destinationAccountId, double $amount): bool;
+    public function getNumber(): int;
 }

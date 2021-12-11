@@ -3,19 +3,16 @@
 namespace App\Repositories\CustomerRepository;
 
 use App\Models\Customer\CustomerInterface;
-use PDOStatement;
 
 interface CustomerRepositoryInterface
 {
-    public function getAll(): array;
+    public function findAll(): array;
 
-    public function getById(CustomerInterface $customer): CustomerInterface;
+    public function findOne(int $id): ?CustomerInterface;
 
-    public function add(CustomerInterface $customer): CustomerInterface;
+    public function findByEmail(string $email): ?CustomerInterface;
 
-    public function edit(CustomerInterface $customer): CustomerInterface;
+    public function save(CustomerInterface $customer): ?int;
 
     public function remove(CustomerInterface $customer): bool;
-
-    public function fillCustomer(PDOStatement $stmt): array;
 }

@@ -2,68 +2,87 @@
 
 namespace App\Models\CustomerAccount;
 
+use DateTimeImmutable;
 use App\Models\CustomerAccount\CustomerAccountInterface;
 
-use DateTimeImmutable;
-
-class Account implements CustomerAccountInterface
+class CustomerAccount implements CustomerAccountInterface
 {
     private int $id;
-    private double $currentBalance;
+    private int $number;
+    private float $currentBalance;
     private int $typeAccount;
-    private DateTimeImmutable $created_at;
     private ?string $description;
+    private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
-    private ?DateTimeImmutable $finished_at;
 
-    public function __construct(
-        double $currentBalance,
+    public function fill(
+        float $currentBalance,
         int $typeAccount,
-        DateTimeImmutable $created_at,
         ?string $description,
-        ?DateTimeImmutable $updated_at,
-        ?DateTimeImmutable $finished_at
+        ?int $number,
+        int $id = 0,
+        ?DateTimeImmutable $created_at = null,
+        ?DateTimeImmutable $updated_at = null
     ) {
         $this->currentBalance = $currentBalance;
         $this->typeAccount = $typeAccount;
-        $this->created_at = $created_at;
         $this->description = $description;
+        $this->number = $number;
+        $this->id = $id;
+        $this->created_at = $created_at;
         $this->updated_at = $updated_at;
-        $this->finished_at = $finished_at;
     }
 
-    public function openAccount(): bool
+    public function getId(): int
     {
-        return true;
+        return $this->id;
     }
 
-    public function finishAccount(): bool
+    public function setId(int $id): void
     {
-        return true;
+        $this->id = $id;
     }
 
-    public function getCurrentBalance(): double
+    public function getNumber(): int
     {
-        return 1;
+        if (empty($this->number)) {
+            $newNumber = $this->generateNumber();
+            $this->setNumber($newNumber);
+        }
+
+        return $this->number;
     }
 
-    public function getAccountReport(): array
+    private function setNumber(int $number): void
     {
-        return [];
+        $this->number = $number;
     }
 
-    public function withdraw(double $amount): bool
+    private function generateNumber(): int
     {
-        return [];
+        $number = new DateTimeImmutable('now');
+        $number = $number->getTimestamp();
+
+        return $number;
     }
 
-    public function deposit(double $amount): bool
+    public function getCurrentBalance(): float
     {
-        return true;
+        return $this->currentBalance;
     }
 
-    public function transfer(int $sourceAccountId, int $destinationAccountId, double $amount): bool
+    public function getDescription(): ?string
     {
-        return true;
+        return $this->description;
+    }
+
+    public function getTypeAccount(): int
+    {
+        return $this->typeAccount;
+    }
+
+    public function setCurrentBalance(float $currentBalance): void
+    {
+        $this->currentBalance = $currentBalance;
     }
 }

@@ -2,47 +2,62 @@
 
 namespace App\Models\Customer;
 
-use App\Models\Customer\CustomerInterface;
 use DateTimeImmutable;
+use App\Models\Customer\CustomerInterface;
+use App\Models\CustomerAccount\CustomerAccountInterface;
 
 class CustomerCompany implements CustomerInterface
 {
+    /**
+     * @var CustomerAccountInterface[] $customerAccounts
+     */
+    public array $customerAccounts;
     private string $address;
     private string $telephone;
-    private DateTimeImmutable $created_at;
     private string $email;
     private string $password;
-    private ?int $id;
-    private ?string $companyName;
-    private ?string $cnpj;
-    private ?string $stateRegistration;
-    private ?DateTimeImmutable $foundationDate;
+    private int $id;
+    private string $companyName;
+    private string $cnpj;
+    private string $stateRegistration;
+    private DateTimeImmutable $foundationDate;
+    private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
-    public function __construct(
+    public function fill(
         string $address,
         string $telephone,
-        DateTimeImmutable $created_at,
         string $email,
         string $password,
-        ?int $id,
-        ?string $companyName,
-        ?string $cnpj,
-        ?string $stateRegistration,
-        ?DateTimeImmutable $foundationDate,
-        ?DateTimeImmutable $updated_at
+        string $companyName,
+        string $cnpj,
+        string $stateRegistration,
+        DateTimeImmutable $foundationDate,
+        int $id = 0,
+        ?DateTimeImmutable $created_at = null,
+        ?DateTimeImmutable $updated_at = null
     ) {
         $this->address = $address;
         $this->telephone = $telephone;
-        $this->created_at = $created_at;
         $this->email = $email;
         $this->password = $password;
-        $this->id = $id;
         $this->companyName = $companyName;
         $this->cnpj = $cnpj;
         $this->stateRegistration = $stateRegistration;
         $this->foundationDate = $foundationDate;
+        $this->id = $id;
+        $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+    }
+
+    public function addAccount(CustomerAccountInterface $customerAccount): void
+    {
+        $this->customerAccounts[] = $customerAccount;
+    }
+
+    public function getAccounts(): array
+    {
+        return $this->customerAccounts;
     }
 
     public function getId(): int
@@ -98,6 +113,11 @@ class CustomerCompany implements CustomerInterface
     public function getAddress(): string
     {
         return $this->address;
+    }
+
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
     }
 
     public function getTelephone(): string

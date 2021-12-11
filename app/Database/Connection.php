@@ -21,9 +21,10 @@ class Connection
      */
     public static function getDatabaseConfiguration(): array
     {
-        $filePath = '/config.json';
+        $filePath = '/../../config.json';
         $data = file_get_contents(__DIR__ . $filePath);
         self::$config = json_decode($data, true);
+        self::$config = self::$config['database'];
 
         return self::$config;
     }
@@ -53,7 +54,7 @@ class Connection
 
                 return self::$instance;
             } catch (PDOException $e) {
-                throw new $e->getMessage();
+                throw new PDOException("Erro ao conectar ao banco de dados");
             }
         }
 

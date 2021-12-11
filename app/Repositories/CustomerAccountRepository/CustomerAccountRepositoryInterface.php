@@ -6,13 +6,13 @@ use App\Models\CustomerAccount\CustomerAccountInterface;
 
 interface CustomerAccountRepositoryInterface
 {
-    public function getAll(): array;
+    public function findAllByCustomer(int $idCustomer): array;
 
-    public function getById(): CustomerAccountInterface;
+    public function findOneByCustomer(int $idCustomer, int $idAccount): ?CustomerAccountInterface;
 
-    public function add(CustomerAccountInterface $account): bool;
+    public function findByAccountNumber(int $accountNumber): ?CustomerAccountInterface;
 
-    public function edit(int $id): CustomerAccountInterface;
+    public function save(CustomerAccountInterface $account, int $idCustomer): ?int;
 
-    public function remove(int $id): bool;
+    public function remove(CustomerAccountInterface $account): bool;
 }
