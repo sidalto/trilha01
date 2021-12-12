@@ -1,7 +1,6 @@
 /.idea/
 /vendor/
-/app/Logs/*
 /app/Logs/
 /composer.phar
 /composer.lock
-*.log
+system.log

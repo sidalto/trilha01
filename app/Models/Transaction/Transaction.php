@@ -257,7 +257,7 @@ class Transaction implements TransactionInterface
             $transactionRepository->save($this);
             Connection::getInstance()->commit();
 
-            $this->logger()->info("Transferência efetuada da conta ID: " . $sourceAccount . " para a conta ID: " . $destinationAccount);
+            $this->logger()->info("Transferência efetuada da conta ID: " . $idSourceAccount . " para a conta ID: " . $destinationAccount->getId());
 
             return $result;
         } catch (Exception $e) {
