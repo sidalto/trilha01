@@ -55,7 +55,8 @@ class HomeController
                         'number' => $result->getNumber(),
                         'type_account' => $result->getTypeAccount(),
                         'name' => request()->data['name'],
-                        'transactions' => $transactions
+                        'transactions' => $transactions,
+                        'id_client' => $idCustomer
                     ]
                 ]);
         } catch (Exception $e) {
