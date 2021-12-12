@@ -2,15 +2,16 @@
 
 namespace App\Controllers;
 
+use Exception;
 use DateTimeImmutable;
 use App\Database\Connection;
+use function App\Helpers\input;
+use function App\Helpers\response;
 use App\Models\Customer\CustomerPerson;
 use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerRepository\CustomerPersonRepository;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
-use function App\Helpers\input;
-use function App\Helpers\response;
 
 class CustomerController
 {
@@ -114,47 +115,45 @@ class CustomerController
 
     public function create()
     {
-        $customer = new CustomerPerson();
-        $customer->fill(
-            input('address'),
-            input('telephone'),
-            input('email'),
-            input('password'),
-            input('person_name'),
-            input('cpf'),
-            input('rg'),
-            new DateTimeImmutable(input('birth_date'))
-        );
+        try {
+            $customer = new CustomerPerson();
+            $customer->fill(
+                input('address'),
+                input('telephone'),
+                input('email'),
+                input('password'),
+                input('person_name'),
+                input('cpf'),
+                input('rg'),
+                new DateTimeImmutable(input('birth_date'))
+            );
 
-        $account = new CustomerAccount();
+            $account = new CustomerAccount();
 
-        $account->fill(
-            0.00,
-            0,
-            '',
-            $account->getNumber()
-        );
+            $account->fill(
+                0.00,
+                0,
+                '',
+                $account->getNumber()
+            );
 
+            $result = $this->customerRepository->save($customer);
+            $result = $this->accountRepository->save($account, $result);
 
-        $result = $this->customerRepository->save($customer);
-
-        if (!$result) {
+            return response()
+                ->httpCode(200)
+                ->json([
+                    'message' => 'Success',
+                    'data' => []
+                ]);
+        } catch (Exception $e) {
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => $e->getMessage(),
                     'data' => []
                 ]);
         }
-
-        $result = $this->accountRepository->save($account, $result);
-
-        return response()
-            ->httpCode(200)
-            ->json([
-                'message' => 'Success',
-                'data' => []
-            ]);
     }
 
     public function update(int $id)

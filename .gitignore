@@ -1,5 +1,6 @@
 /.idea/
 /vendor/
-/Logs/
+/Logs/*
 /composer.phar
 /composer.lock
+*.log
