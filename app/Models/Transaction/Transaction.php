@@ -202,7 +202,6 @@ class Transaction implements TransactionInterface
 
             return $transactionStatus;
         } catch (Exception $e) {
-            var_dump($e);
             Connection::getInstance()->rollBack();
             throw $e;
         }

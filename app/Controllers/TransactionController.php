@@ -123,7 +123,7 @@ class TransactionController
     {
         try {
             $amount = input('amount');
-            $description = input('amount');
+            $description = input('description');
             $idCustomer = request()->data['id'];
             $transaction = new Transaction();
             $transaction->payment($idCustomer, $idAccount, $amount, $description);

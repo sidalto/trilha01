@@ -13,3 +13,7 @@
 [2021-12-12T19:42:31.321358+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/transaction/34/transfer/ [] []
 [2021-12-12T19:42:39.013650+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/transaction/34/transfer/ [] []
 [2021-12-12T19:42:58.716844+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/transaction/34/transfer/ [] []
+[2021-12-12T21:34:42.119686+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/transaction/49/deposit/ [] []
+[2021-12-12T21:34:42.140387+00:00] wjcrypto-log.INFO: Depósito efetuado na conta de ID: 49 [] []
+[2021-12-12T21:34:55.523701+00:00] wjcrypto-log.INFO: Acesso à rota: /trilha01/transaction/49/payment/ [] []
+[2021-12-12T21:34:55.543601+00:00] wjcrypto-log.INFO: Pagamento efetuado na conta de ID: 49 [] []
