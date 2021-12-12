@@ -195,6 +195,10 @@ class Transaction implements TransactionInterface
     public function transfer(int $idCustomer, int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
     {
         try {
+            if (!is_int($destinationAccountNumber)) {
+                throw new Exception("Informe um número de conta válido");
+            }
+
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $accountRepository = new CustomerAccountRepository(Connection::getInstance());
             $sourceAccount = $accountRepository->findOneByCustomer($idSourceAccount, $idCustomer);
