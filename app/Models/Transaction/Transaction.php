@@ -3,8 +3,10 @@
 namespace App\Models\Transaction;
 
 use Exception;
+use Monolog\Logger;
 use DateTimeImmutable;
 use App\Database\Connection;
+use Monolog\Handler\StreamHandler;
 use App\Models\Transaction\TransactionInterface;
 use App\Repositories\TransactionRepository\TransactionRepository;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
@@ -40,6 +42,15 @@ class Transaction implements TransactionInterface
         $this->id = $id;
         $this->created_at = $created_at;
         $this->updated_at = $updated_at;
+    }
+
+    private function logger(): Logger
+    {
+        $handler = new StreamHandler(__DIR__ . '/../../Logs/system.log', Logger::DEBUG);
+        $logger = new Logger('wjcrypto-log');
+        $logger->pushHandler($handler);
+
+        return $logger;
     }
 
     public function getId(): int
@@ -98,6 +109,8 @@ class Transaction implements TransactionInterface
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $transactions = $transactionRepository->findAllByDateInterval($idAccount, $initialDate, $finalDate);
 
+            $this->logger()->info("Extrato efetuado na conta de ID: " . $idAccount);
+
             return $transactions;
         } catch (Exception $e) {
             throw $e;
@@ -114,6 +127,7 @@ class Transaction implements TransactionInterface
     public function withdraw(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
         try {
+            Connection::getInstance()->beginTransaction();
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $accountRepository = new CustomerAccountRepository(Connection::getInstance());
             $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
@@ -139,9 +153,13 @@ class Transaction implements TransactionInterface
 
             $this->fill($amount, $this->typeTransaction['SAQUE'], $description, $account->getId());
             $transactionStatus = $transactionRepository->save($this);
+            Connection::getInstance()->commit();
+
+            $this->logger()->info("Saque efetuado na conta de ID: " . $idAccount);
 
             return $transactionStatus;
         } catch (Exception $e) {
+            Connection::getInstance()->rollBack();
             throw $e;
         }
     }
@@ -156,6 +174,7 @@ class Transaction implements TransactionInterface
     public function deposit(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
         try {
+            Connection::getInstance()->beginTransaction();
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $accountRepository = new CustomerAccountRepository(Connection::getInstance());
             $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
@@ -177,9 +196,14 @@ class Transaction implements TransactionInterface
 
             $this->fill($amount, $this->typeTransaction['DEPOSITO'], $description, $account->getId());
             $transactionStatus = $transactionRepository->save($this);
+            Connection::getInstance()->commit();
+
+            $this->logger()->info("Depósito efetuado na conta de ID: " . $idAccount);
 
             return $transactionStatus;
         } catch (Exception $e) {
+            var_dump($e);
+            Connection::getInstance()->rollBack();
             throw $e;
         }
     }
@@ -195,10 +219,7 @@ class Transaction implements TransactionInterface
     public function transfer(int $idCustomer, int $idSourceAccount, int $destinationAccountNumber, float $amount, string $description = ''): bool
     {
         try {
-            if (!is_int($destinationAccountNumber)) {
-                throw new Exception("Informe um número de conta válido");
-            }
-
+            Connection::getInstance()->beginTransaction();
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $accountRepository = new CustomerAccountRepository(Connection::getInstance());
             $sourceAccount = $accountRepository->findOneByCustomer($idSourceAccount, $idCustomer);
@@ -235,9 +256,13 @@ class Transaction implements TransactionInterface
 
             $this->fill($amount, $this->typeTransaction['TRANSFERENCIA'], $description, $sourceAccount->getId());
             $transactionRepository->save($this);
+            Connection::getInstance()->commit();
+
+            $this->logger()->info("Transferência efetuada da conta ID: " . $sourceAccount . " para a conta ID: " . $destinationAccount);
 
             return $result;
         } catch (Exception $e) {
+            Connection::getInstance()->rollBack();
             throw $e;
         }
     }
@@ -252,6 +277,7 @@ class Transaction implements TransactionInterface
     public function payment(int $idCustomer, int $idAccount, float $amount, string $description = ''): bool
     {
         try {
+            Connection::getInstance()->beginTransaction();
             $transactionRepository = new TransactionRepository(Connection::getInstance());
             $accountRepository = new CustomerAccountRepository(Connection::getInstance());
             $account = $accountRepository->findOneByCustomer($idAccount, $idCustomer);
@@ -273,9 +299,13 @@ class Transaction implements TransactionInterface
 
             $this->fill($amount, $this->typeTransaction['PAGAMENTO'], $description, $account->getId());
             $transactionStatus = $transactionRepository->save($this);
+            Connection::getInstance()->commit();
+
+            $this->logger()->info("Pagamento efetuado na conta de ID: " . $idAccount);
 
             return $transactionStatus;
         } catch (Exception $e) {
+            Connection::getInstance()->rollBack();
             throw $e;
         }
     }

@@ -71,6 +71,10 @@ class TransactionController
     {
         try {
             $destinationAccountNumber = input('account_number');
+            if (!ctype_digit($destinationAccountNumber)) {
+                throw new Exception("Número de conta válido");
+            }
+
             $amount = input('amount');
             $idCustomer = request()->data['id'];
             $transaction = new Transaction();
