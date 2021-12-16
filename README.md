@@ -25,9 +25,8 @@
  <a href="#autor">Autor</a>
 </p>
 <br />
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 <hr />
-<p id="#objetivo">
+<p id="objetivo">
   <h4>Software Bancário onde o correntista poderá realizar as seguintes operações:</h4>
   <ul>
     <li>Saque</li>
@@ -39,7 +38,7 @@
 </p>
 <br />
 <hr />
-<p id="#tecnologias">
+<p id="tecnologias">
   <h4>Tecnologias Utilizadas:</h4>
   <ul>
     <li>PHP 8.0</li>
