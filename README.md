@@ -245,3 +245,10 @@
     </tbody>
   </table>
 </p>
+<p id="contribuicao">
+  Contribuidores:
+  <ul>
+    <li><a href="https://github.com/sidalto">Sidalto Pereira</a></li>
+    <li><a href="https://br.linkedin.com/in/vinicius-gsantos">Vinícius G. Santos</a></li>
+  </ul>
+</p>
