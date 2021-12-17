@@ -7,7 +7,6 @@ use Pecee\SimpleRouter\SimpleRouter;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
-use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 class Router extends SimpleRouter
@@ -18,12 +17,12 @@ class Router extends SimpleRouter
      * @throws NotFoundHttpException
      * @throws Exception
      */
-    public static function start(Logger $logger): void
+    public static function start(): void
     {
         try {
             require_once __DIR__ . '/../Helpers/helpers.php';
             require_once 'routes.php';
-            parent::start($logger);
+            parent::start();
         } catch (TokenMismatchException $e) {
             throw new TokenMismatchException('Erro ao localizar o token');
         } catch (HttpException $e) {
@@ -33,5 +32,11 @@ class Router extends SimpleRouter
         } catch (Exception $e) {
             throw new Exception($e);
         }
+    }
+
+    public static function init(Logger $logger)
+    {
+        $logger->info("Método: " . strtoupper(static::request()->getMethod()) . " | Rota: " . static::router()->getUrl());
+        self::start();
     }
 }

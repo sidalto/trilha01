@@ -13,7 +13,7 @@ $logger->pushHandler($handler);
 
 try {
     Router::setDefaultNamespace("\App\Controllers");
-    Router::start($logger);
+    Router::init($logger);
 } catch (\Exception $e) {
     $logger->notice($e->getMessage());
 
