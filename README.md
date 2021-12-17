@@ -27,7 +27,7 @@
     <li>Pagamento</li>
   </ul>
 </p>
-🌎 API Rest: <a href="http://45.63.111.91/trilha01">Aqui</a>
+🌎 API Rest: <a href="https://www.api-trilha01.tiemfoco.com/trilha01">Aqui</a>
 <p id="tecnologias">
   <h4>🛠 Tecnologias Utilizadas:</h4>
   <ul>
@@ -137,7 +137,7 @@
   </ol>
 </p>
 <p id="rotas">
-  🛣️ Rotas da API: <br />
+  🛣️ Rotas da API (utilize Postman, Insomnia ou similiar para testar): <br />
   <table border="1">
     <thead>
       <tr>
