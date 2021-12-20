@@ -24,9 +24,9 @@ class AccountController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Conta não encontrada.',
                     'data' => []
                 ]);
         }
@@ -57,9 +57,9 @@ class AccountController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Conta não encontrada.',
                     'data' => []
                 ]);
         }
@@ -107,9 +107,9 @@ class AccountController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Conta não encontrada.',
                     'data' => []
                 ]);
         }
@@ -139,9 +139,9 @@ class AccountController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Conta não encontrada.',
                     'data' => []
                 ]);
         }
@@ -152,7 +152,7 @@ class AccountController
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Erro ao excluir a conta.',
                     'data' => []
                 ]);
         }

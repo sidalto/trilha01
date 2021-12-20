@@ -5,13 +5,13 @@ namespace App\Controllers;
 use Exception;
 use DateTimeImmutable;
 use App\Database\Connection;
-use function App\Helpers\input;
-use function App\Helpers\response;
 use App\Models\Customer\CustomerPerson;
 use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerRepository\CustomerPersonRepository;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
+use function App\Helpers\input;
+use function App\Helpers\response;
 
 class CustomerController
 {
@@ -29,9 +29,9 @@ class CustomerController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Não há clientes.',
                     'data' => []
                 ]);
         }
@@ -77,9 +77,9 @@ class CustomerController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Cliente não encontrado.',
                     'data' => []
                 ]);
         }
@@ -162,9 +162,9 @@ class CustomerController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Cliente não encontrado.',
                     'data' => []
                 ]);
         }
@@ -188,7 +188,7 @@ class CustomerController
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Erro ao atualizar o cliente.',
                     'data' => []
                 ]);
         }
@@ -207,9 +207,9 @@ class CustomerController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Cliente não encontrado.',
                     'data' => []
                 ]);
         }
@@ -220,7 +220,7 @@ class CustomerController
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Erro ao excluir o cliente.',
                     'data' => []
                 ]);
         }

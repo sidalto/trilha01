@@ -13,11 +13,11 @@ class AuthenticateController
 {
     public function index()
     {
-        $handler = new StreamHandler(__DIR__ . '/../Logs/system.log', Logger::DEBUG);
-        $logger = new Logger('wjcrypto-log');
-        $logger->pushHandler($handler);
-
         try {
+            $handler = new StreamHandler(__DIR__ . '/../Logs/system.log', Logger::DEBUG);
+            $logger = new Logger('wjcrypto-log');
+            $logger->pushHandler($handler);
+
             $authenticate = new Authenticate();
             $email = input('email');
             $password = input('password');

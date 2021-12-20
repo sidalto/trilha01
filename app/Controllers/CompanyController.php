@@ -5,13 +5,13 @@ namespace App\Controllers;
 use Exception;
 use DateTimeImmutable;
 use App\Database\Connection;
-use function App\Helpers\input;
-use function App\Helpers\response;
 use App\Models\Customer\CustomerCompany;
 use App\Models\CustomerAccount\CustomerAccount;
 use App\Repositories\CustomerRepository\CustomerCompanyRepository;
 use App\Repositories\CustomerRepository\CustomerRepositoryInterface;
 use App\Repositories\CustomerAccountRepository\CustomerAccountRepository;
+use function App\Helpers\input;
+use function App\Helpers\response;
 
 class CompanyController
 {
@@ -29,9 +29,9 @@ class CompanyController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Não há empresas.',
                     'data' => []
                 ]);
         }
@@ -77,9 +77,9 @@ class CompanyController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Empresa não encontrado.',
                     'data' => []
                 ]);
         }
@@ -161,9 +161,9 @@ class CompanyController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Empresa não encontrado.',
                     'data' => []
                 ]);
         }
@@ -187,7 +187,7 @@ class CompanyController
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Erro ao atualizar a empresa.',
                     'data' => []
                 ]);
         }
@@ -206,9 +206,9 @@ class CompanyController
 
         if (!$result) {
             return response()
-                ->httpCode(400)
+                ->httpCode(204)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Empresa não encontrada.',
                     'data' => []
                 ]);
         }
@@ -219,7 +219,7 @@ class CompanyController
             return response()
                 ->httpCode(400)
                 ->json([
-                    'message' => 'Error',
+                    'message' => 'Erro ao excluir a empresa.',
                     'data' => []
                 ]);
         }
