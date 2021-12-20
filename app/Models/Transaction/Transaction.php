@@ -285,6 +285,10 @@ class Transaction implements TransactionInterface
                 throw new Exception('Conta inválida');
             }
 
+            if (!$amount > 0) {
+                throw new Exception('Valor incorreto para pagamento');
+            }
+
             if ($account->getCurrentBalance() <= 0 || $account->getCurrentBalance() < $amount) {
                 throw new Exception('Saldo insuficiente');
             }
