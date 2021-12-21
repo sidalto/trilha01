@@ -28,7 +28,11 @@ class Authenticate
         $this->company = new CustomerCompany();
     }
 
-    public function generateToken(CustomerInterface $customer)
+    /**
+     * @param CustomerInterface $customer
+     * @return array
+     */
+    public function generateToken(CustomerInterface $customer): array
     {
         try {
             $payload = [
@@ -51,7 +55,12 @@ class Authenticate
         }
     }
 
-    public function authenticate(string $email, string $password)
+    /**
+     * @param string $email
+     * @param string $password
+     * @return array
+     */
+    public function authenticate(string $email, string $password): array
     {
         try {
             if (!isset($email) || !isset($password)) {
@@ -78,7 +87,10 @@ class Authenticate
         }
     }
 
-    public function verifyAuth()
+    /**
+     * @return array
+     */
+    public function verifyAuth(): array
     {
         try {
             $token = getallheaders();

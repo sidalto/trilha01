@@ -22,6 +22,9 @@ class TransactionController
         $this->accountRepository = new CustomerAccountRepository(Connection::getInstance());
     }
 
+    /**
+     * @param int $idAccount
+     */
     public function index(int $idAccount)
     {
         try {
@@ -44,6 +47,9 @@ class TransactionController
         }
     }
 
+    /**
+     * @param int $idAccount
+     */
     public function withdraw(int $idAccount)
     {
         try {
@@ -67,6 +73,9 @@ class TransactionController
         }
     }
 
+    /**
+     * @param int $idAccount
+     */
     public function transfer(int $idAccount)
     {
         try {
@@ -96,6 +105,9 @@ class TransactionController
         }
     }
 
+    /**
+     * @param int $idAccount
+     */
     public function deposit(int $idAccount)
     {
         try {
@@ -119,6 +131,9 @@ class TransactionController
         }
     }
 
+    /**
+     * @param int $idAccount
+     */
     public function payment(int $idAccount)
     {
         try {

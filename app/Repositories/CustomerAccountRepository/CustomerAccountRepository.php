@@ -59,7 +59,7 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
+     * @param int $idCustomer
      * @return array
      */
     public function findAllByCustomer(int $idCustomer): array
@@ -77,7 +77,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
      * @param int $idAccount
      * @param int $idCustomer
      * @return CustomerAccountInterface|null
@@ -108,7 +107,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
      * @param int $accountNumber
      * @return CustomerAccountInterface|null
      */
@@ -134,8 +132,8 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
      * @param CustomerAccountInterface $account
+     * @param int $idCustomer
      * @return int|null
      */
     public function save(CustomerAccountInterface $account, int $idCustomer): ?int
@@ -152,7 +150,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *            
      * @param CustomerAccountInterface $account
      * @param string $customerId
      * @return int|null
@@ -184,7 +181,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
      * @param CustomerAccountInterface $account
      * @return int|null
      */
@@ -214,7 +210,6 @@ class CustomerAccountRepository implements CustomerAccountRepositoryInterface
     }
 
     /**
-     *
      * @param CustomerAccountInterface $account
      * @return bool
      */

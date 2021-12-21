@@ -10,6 +10,11 @@ trait PrepareDatabaseSql
 {
     protected static PDO $connection;
 
+    /**
+     * @param string $query
+     * @param array $params
+     * @return PDOStatement
+     */
     public function prepareBind(string $query, array $params = []): PDOStatement
     {
         try {
@@ -25,6 +30,9 @@ trait PrepareDatabaseSql
         }
     }
 
+    /**
+     * @return string
+     */
     public function getInsertId(): string
     {
         try {

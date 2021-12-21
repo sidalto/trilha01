@@ -71,6 +71,9 @@ class CompanyController
             ]);
     }
 
+    /**
+     * @param int $id
+     */
     public function getById(int $id)
     {
         $result = $this->companyRepository->findOne($id);
@@ -155,6 +158,9 @@ class CompanyController
         }
     }
 
+    /**
+     * @param int $id
+     */
     public function update(int $id)
     {
         $result = $this->companyRepository->findOne($id);
@@ -200,6 +206,9 @@ class CompanyController
             ]);
     }
 
+    /**
+     * @param int $id
+     */
     public function delete(int $id)
     {
         $result = $this->companyRepository->findOne($id);

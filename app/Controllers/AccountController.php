@@ -18,7 +18,10 @@ class AccountController
         $this->accountRepository = new CustomerAccountRepository(Connection::getInstance());
     }
 
-    public function index(int $idCustomer)
+    /**
+     * @param int $idCustomer
+     */
+    public function index(int $idCustomer): void
     {
         $result = $this->accountRepository->findAllByCustomer($idCustomer);
 
@@ -51,7 +54,11 @@ class AccountController
             ]);
     }
 
-    public function getById(int $idAccount, int $idCustomer)
+    /**
+     * @param int $idAccount
+     * @param int $idCustomer
+     */
+    public function getById(int $idAccount, int $idCustomer): void
     {
         $result = $this->accountRepository->findOneByCustomer($idAccount, $idCustomer);
 
@@ -81,7 +88,7 @@ class AccountController
             ]);
     }
 
-    public function create()
+    public function create(): void
     {
         $account = new CustomerAccount();
         $account->fill(
@@ -101,7 +108,10 @@ class AccountController
             ]);
     }
 
-    public function update(int $idAccount)
+    /**
+     * @param int $idAccount
+     */
+    public function update(int $idAccount): void
     {
         $result = $this->accountRepository->findOneByCustomer($idAccount, input('customers_id'));
 
@@ -133,7 +143,11 @@ class AccountController
             ]);
     }
 
-    public function delete(int $idAccount, int $idCustomer)
+    /**
+     * @param int $idAccount
+     * @param int $idCustomer
+     */
+    public function delete(int $idAccount, int $idCustomer): void
     {
         $result = $this->accountRepository->findOneByCustomer($idAccount, $idCustomer);
 

@@ -71,6 +71,9 @@ class CustomerController
             ]);
     }
 
+    /**
+     * @param int $id
+     */
     public function getById(int $id)
     {
         $result = $this->customerRepository->findOne($id);
@@ -156,6 +159,9 @@ class CustomerController
         }
     }
 
+    /**
+     * @param int $id
+     */
     public function update(int $id)
     {
         $result = $this->customerRepository->findOne($id);
@@ -201,6 +207,9 @@ class CustomerController
             ]);
     }
 
+    /**
+     * @param int $id
+     */
     public function delete(int $id)
     {
         $result = $this->customerRepository->findOne($id);

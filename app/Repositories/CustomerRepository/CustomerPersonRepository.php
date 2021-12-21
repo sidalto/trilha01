@@ -80,7 +80,6 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     * 
      * @return array
      */
     public function findAll(): array
@@ -97,7 +96,6 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @param int $id
      * @return CustomerInterface|null
      */
@@ -146,7 +144,6 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     * 
      * @param CustomerInterface $customer
      * @return int|null
      */
@@ -164,7 +161,6 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @var CustomerInterface $customer
      * @return int|null
      */
@@ -193,13 +189,16 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
             }
 
             return $customer->getId();
-        } catch (Exception $e) {
-            throw new Exception("Não foi possível salvar o cliente");
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                throw new Exception("Não foi possível salvar o cliente, CPF ou email já cadastrados");
+            } else {
+                throw new Exception("Não foi possível salvar o cliente");
+            }
         }
     }
 
     /**
-     *
      * @var CustomerInterface $customer
      * @return int|null
      */
@@ -234,7 +233,6 @@ class CustomerPersonRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @var CustomerInterface $customer
      * @return bool
      */

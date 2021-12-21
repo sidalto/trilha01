@@ -34,7 +34,10 @@ class Router extends SimpleRouter
         }
     }
 
-    public static function init(Logger $logger)
+    /**
+     * @param Logger $logger
+     */
+    public static function init(Logger $logger): void
     {
         $logger->info("Método: " . strtoupper(static::request()->getMethod()) . " | Rota: " . static::router()->getUrl());
         self::start();

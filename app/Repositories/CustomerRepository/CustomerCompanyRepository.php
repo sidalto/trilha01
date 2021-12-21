@@ -97,7 +97,6 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @param int $id
      * @return CustomerInterface|null
      */
@@ -148,7 +147,6 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @param CustomerInterface $customer
      * @return int|null
      */
@@ -166,7 +164,6 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *            
      * @param CustomerInterface $company
      * @return int|null
      */
@@ -195,13 +192,16 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
             }
 
             return $company->getId();
-        } catch (Exception $e) {
-            throw new Exception("Não foi possível inserir o cliente");
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                throw new Exception("Não foi possível salvar o cliente, CNPJ ou email já cadastrados");
+            } else {
+                throw new Exception("Não foi possível salvar o cliente");
+            }
         }
     }
 
     /**
-     *
      * @param CustomerInterface $company
      * @return int|null
      */
@@ -236,7 +236,6 @@ class CustomerCompanyRepository implements CustomerRepositoryInterface
     }
 
     /**
-     *
      * @param CustomerInterface $customer
      * @return bool
      */

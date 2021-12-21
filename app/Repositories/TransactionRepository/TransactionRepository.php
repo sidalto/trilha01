@@ -64,7 +64,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *
      * @param int $idAccount
      * @return array
      */
@@ -84,7 +83,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *
      * @param int $idAccount
      * @param string $initialDate
      * @param string $finalDate
@@ -115,7 +113,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *
      * @param TransactionInterface $transaction
      * @return bool
      */
@@ -133,7 +130,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *            
      * @param TransactionInterface $transaction
      * @param int $idAccount
      * @return bool
@@ -164,7 +160,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *
      * @param TransactionInterface $transaction
      * @return bool
      */
@@ -194,7 +189,6 @@ class TransactionRepository implements TransactionRepositoryInterface
     }
 
     /**
-     *
      * @param TransactionInterface $transaction
      * @return bool
      */

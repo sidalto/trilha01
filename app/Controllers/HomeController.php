@@ -68,6 +68,10 @@ class HomeController
         }
     }
 
+    /**
+     * @param int $idCustomer
+     * @param string $email
+     */
     public function getCurrentBalance(int $idCustomer, string $email)
     {
         try {
@@ -85,6 +89,9 @@ class HomeController
         }
     }
 
+    /**
+     * @param string $email
+     */
     public function getReport(string $email)
     {
         try {
@@ -105,6 +112,9 @@ class HomeController
         }
     }
 
+    /**
+     * @param string $email
+     */
     public function verifyEmail(string $email)
     {
         try {

@@ -26,6 +26,15 @@ class Transaction implements TransactionInterface
     private ?DateTimeImmutable $created_at;
     private ?DateTimeImmutable $updated_at;
 
+    /**
+     * @param float $amount
+     * @param int $type
+     * @param string|null $description
+     * @param int $account_id
+     * @param int $id
+     * @param DateTimeImmutable|null $created_at
+     * @param DateTimeImmutable|null $updated_at
+     */
     public function fill(
         float $amount,
         int $type,
@@ -34,7 +43,7 @@ class Transaction implements TransactionInterface
         int $id = 0,
         ?DateTimeImmutable $created_at = null,
         ?DateTimeImmutable $updated_at = null
-    ) {
+    ): void {
         $this->amount = $amount;
         $this->type = $type;
         $this->description = $description;
@@ -44,6 +53,9 @@ class Transaction implements TransactionInterface
         $this->updated_at = $updated_at;
     }
 
+    /**
+     * @return Logger
+     */
     private function logger(): Logger
     {
         $handler = new StreamHandler(__DIR__ . '/../../Logs/system.log', Logger::DEBUG);
@@ -53,41 +65,65 @@ class Transaction implements TransactionInterface
         return $logger;
     }
 
+    /**
+     * @return int
+     */
     public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * @param int $id
+     */
     public function setId(int $id): void
     {
         $this->id = $id;
     }
 
+    /**
+     * @return float
+     */
     public function getAmount(): float
     {
         return $this->amount;
     }
 
+    /**
+     * @param float $amount
+     */
     public function setAmount(float $amount): void
     {
         $this->amount = $amount;
     }
 
+    /**
+     * @return string
+     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
+    /**
+     * @return float
+     */
     public function getType(): float
     {
         return $this->type;
     }
 
+    /**
+     * @return DateTimeImmutable|null
+     */
     public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->created_at;
     }
 
+    /**
+     * @return int
+     */
     public function getAccountId(): int
     {
         return $this->account_id;
